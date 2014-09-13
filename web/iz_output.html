@@ -1,0 +1,45 @@
+<link rel="import" href="packages/polymer/polymer.html">
+<link rel="import" href="packages/paper_elements/paper_progress.html">
+<link rel="import" href="packages/paper_elements/paper_icon_button.html">
+<link rel="import" href="packages/core_elements/core_icons.html">
+
+<polymer-element name="iz-output">
+  <template>
+  <style>
+      :host{
+          -webkit-animation: pop .6s ease-out 0 1 normal; /* Chrome, Safari, Opera */
+          animation: pop .6s ease-out 0 1 normal;
+          -webkit-animation-fill-mode: forwards; /* Chrome, Safari, Opera */
+          animation-fill-mode: forwards;
+          width: 0;
+      }
+
+      /* Chrome, Safari, Opera */
+      @-webkit-keyframes pop {
+          from {margin-left: -50px;
+          width: 0px;}
+          to {margin-left: 0px;
+          width: 400px;}
+      }
+
+      /* Standard syntax */
+      @keyframes pop {
+          from {margin-left: -50px;
+              width: 0px;}
+          to {margin-left: 0px;
+              width: 400px;}
+      }
+  </style>
+  <div style="background-color:white; display: flex; flex-direction: row; padding: 10px; color: #666; border-radius: 4px ">
+      <div style="overflow: hidden" layout vertical center flex>
+          <div style="font-weight: bold; font-size: 0.75em">{{filename}}</div>
+          <paper-progress value="{{progress}}" style="width: 100%;"></paper-progress>
+          <div style="color: #3b8183">{{progress}}%</div>
+      </div>
+      <paper-icon-button fill="" icon="file-download" role="button" tabindex="0" aria-label="arrow-back" disabled?="{{progress!=100}}"></paper-icon-button>
+      <paper-icon-button fill="" icon="delete" role="button" tabindex="0" aria-label="arrow-back" class=""></paper-icon-button>
+  </div>
+
+  </template>
+  <script type="application/dart" src="iz_output.dart"></script>
+</polymer-element>

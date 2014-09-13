@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<!-- In an HTML file -->
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>ECM Tools for the Web</title>
+    <script src="packages/web_components/dart_support.js"></script>
+    <link rel="import" href="packages/polymer/polymer.html">
+    <script src="packages/browser/dart.js"></script>
+    <link rel="stylesheet" href="/main.css" shim-shadowdom>
+    <link rel="import" href="packages/paper_elements/paper_input.html">
+    <link rel="import" href="packages/paper_elements/paper_tabs.html">
+    <link rel="import" href="packages/paper_elements/paper_tab.html">
+    <link rel="import" href="packages/core_elements/core_toolbar.html">
+    <link rel="import" href="packages/core_elements/core_header_panel.html">
+    <link rel="import" href="../../iz_output.html">
+</head>
+<body unresolved fullbleed layout vertical>
+<style>
+    #bodystack>*{
+        margin: 0 25px;
+    }
+</style>
+
+<core-header-panel flex>
+<core-toolbar class="medium"><div flex>INPUT.ZONE</div>
+<paper-tabs selected="0"  role="tablist" class="bottom fit">
+    <paper-tab role="tab" class="core-selected" active>UNECM</paper-tab>
+    <paper-tab role="tab">ECMIZE</paper-tab>
+</paper-tabs>
+</core-toolbar>
+<template id="iz-body" is="auto-binding-dart">
+    <section>
+        <h1>UNECM</h1>
+        <h2>Ecm tools for the web</h2>
+    </section>
+    <section hero layout vertical center>
+        <div id="bodystack" layout horizontal start>
+            <img style="max-width: 400px" src="/drop.svg" on-click="{{clickZone}}" flex/>
+            <iz-output progress="{{100}}" filename="TOMBRAIDER3.iso.ecm"></iz-output>
+        </div>
+    </section>
+</template>
+</core-header-panel>
+
+
+<script type="application/dart" src="copy.dart"></script>
+</body>
+</html>
