@@ -1,0 +1,25 @@
+<link rel="import" href="packages/core_elements/core_animated_pages.html">
+<link rel="import" href="iz_output.html">
+<polymer-element name="iz-output-list">
+    <template>
+        <style>
+            :host{
+                display: block;
+            }
+        </style>
+<!--        <core-animated-pages>-->
+            <section>
+                <template repeat="{{output in outputs1}}">
+                    <iz-output id="{{output.id}}" filename="{{output.filename}}" progress="{{output.progress}}" statut="{{output.statut}}" hero-id="{{output.id}}" on-remove="{{removeTask}}"></iz-output>
+                </template>
+            </section>
+<!--            <section>
+                <template repeat="{{output in outputs2}}">
+                    <iz-output filename="{{output.filename}}" progress="{{output.progress}}" hero-id="{{output.id}}"></iz-output>
+                </template>
+            </section>
+        </core-animated-pages>-->
+    </template>
+    <script type="application/dart" src="iz_output_list.dart"></script>
+</polymer-element>
+
