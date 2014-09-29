@@ -7,11 +7,16 @@
   <template>
   <style>
       :host{
+          display: block;
+
           -webkit-animation: pop .6s ease-out 0 1 normal; /* Chrome, Safari, Opera */
           animation: pop .6s ease-out 0 1 normal;
           -webkit-animation-fill-mode: forwards; /* Chrome, Safari, Opera */
           animation-fill-mode: forwards;
-          width: 0;
+      }
+
+      #main{
+
       }
 
       /* Chrome, Safari, Opera */
@@ -30,14 +35,14 @@
               width: 400px;}
       }
   </style>
-  <div style="background-color:white; display: flex; flex-direction: row; padding: 10px; color: #666; border-radius: 4px ">
+  <div id="main" style="background-color:white; display: flex; flex-direction: row; padding: 10px; color: #666; border-radius: 4px; margin: 20px 0 ">
       <div style="overflow: hidden" layout vertical center flex>
           <div style="font-weight: bold; font-size: 0.75em">{{filename}}</div>
           <paper-progress value="{{progress}}" style="width: 100%;"></paper-progress>
-          <div style="color: #3b8183">{{progress}}%</div>
+          <div style="color: #3b8183">{{statut}}:{{progress}}%</div>
       </div>
       <paper-icon-button fill="" icon="file-download" role="button" tabindex="0" aria-label="arrow-back" disabled?="{{progress!=100}}"></paper-icon-button>
-      <paper-icon-button fill="" icon="delete" role="button" tabindex="0" aria-label="arrow-back" class=""></paper-icon-button>
+      <paper-icon-button fill="" icon="{{progress==100?'delete':'cancel'}}" role="button" tabindex="0" aria-label="arrow-back" class="" on-click="{{remove}}"></paper-icon-button>
   </div>
 
   </template>

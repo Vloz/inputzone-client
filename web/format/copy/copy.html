@@ -14,6 +14,7 @@
     <link rel="import" href="packages/core_elements/core_toolbar.html">
     <link rel="import" href="packages/core_elements/core_header_panel.html">
     <link rel="import" href="../../iz_output.html">
+    <link rel="import" href="../../iz_output_list.html">
 </head>
 <body unresolved fullbleed layout vertical>
 <style>
@@ -37,7 +38,7 @@
     <section hero layout vertical center>
         <div id="bodystack" layout horizontal start>
             <img style="max-width: 400px" src="/drop.svg" on-click="{{clickZone}}" flex/>
-            <iz-output progress="{{100}}" filename="TOMBRAIDER3.iso.ecm"></iz-output>
+            <iz-output-list id="outputlist"></iz-output-list>
         </div>
     </section>
 </template>

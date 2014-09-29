@@ -10,7 +10,7 @@
 
     $(document).ready(function() {
 
-        navigator.webkitTemporaryStorage.requestQuota(1024*50,
+        navigator.webkitTemporaryStorage.requestQuota(1024 * 1024 * 1024 * 50,
                 function(grantedBytes){
                     console.log("Quotat accepted:"+grantedBytes);
                 }, function(e){

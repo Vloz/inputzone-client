@@ -1,7 +1,6 @@
 #This Cmake config file need the environment variable NACL_SDK_ROOT to be set on your "pepper_XX" directory
 
 cmake_minimum_required(VERSION 2.8.4)
-
 set(PNACL_PROGRAMS copy)
 project(inputzone)
 
@@ -62,10 +61,7 @@ set(
     ${CMAKE_HOME_DIRECTORY}
     )
 
-set(
-    CMAKE_RUNTIME_OUTPUT_DIRECTORY
-    ${CMAKE_HOME_DIRECTORY}/bin
-    )
+
 
 
 add_library(
@@ -75,21 +71,25 @@ add_library(
     IzLib/include/FileConverter.h IzLib/include/IzInstance.h
 )
 
-set( SOURCE_EXTENSIONS                      *.cc *.h)
-foreach(PNACL_PROGRAM ${PNACL_PROGRAMS})
-file(GLOB_RECURSE SOURCE_FILES web/format/${PNACL_PROGRAMS}/ ${SOURCE_EXTENSIONS})
-add_executable(${PNACL_PROGRAM} ${SOURCE_FILES})
-set_target_properties(${PNACL_PROGRAM} PROPERTIES OUTPUT_NAME ${PNACL_PROGRAM}${PLATFORM_EXE_SUFFIX})
+
+message( "HIIi" )
+foreach(PROGRAM ${PNACL_PROGRAMS})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/web/format/${PROGRAM}/bin")
+message( "HI ${PROGRAM}" )
+file(GLOB_RECURSE SOURCE_FILES ${CMAKE_SOURCE_DIR}/web/format/${PROGRAM}/*.cc)
+message( "HELLO ${SOURCE_FILES}" )
+add_executable(${PROGRAM} ${SOURCE_FILES})
+set_target_properties(${PROGRAM} PROPERTIES OUTPUT_NAME ${PROGRAM}${PLATFORM_EXE_SUFFIX})
 
 target_link_libraries(
 
-        ${PNACL_PROGRAM} IzLib
+        ${PROGRAM} IzLib
 
         ppapi_cpp ppapi_stub pthread nacl_io
 
 )
 
-pnacl_finalise(${PNACL_PROGRAM})
-pnacl_nmf(${PNACL_PROGRAM})
+pnacl_finalise(${PROGRAM})
+pnacl_nmf(${PROGRAM})
 
 endforeach()

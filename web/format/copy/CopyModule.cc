@@ -1,11 +1,11 @@
 #include "ppapi/cpp/instance.h"
 #include "ppapi/cpp/module.h"
-#include "IzModule.h"
-#include "FileTask.h"
+#include "IzInstance.h"
+#include "FileConverter.h"
 
-class CopyTask : FileTask{
+class CopyTask : FileConverter {
 public:
-    CopyTask( IzInstanceBase *instance,const pp::Var& var_message) : FileTask(instance, var_message, "Copy"){
+    CopyTask( IzInstanceBase *instance,const pp::Var& var_message) : FileConverter(instance, var_message, "Copy"){
     };
 private:
 
