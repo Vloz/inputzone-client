@@ -72,12 +72,11 @@ add_library(
 )
 
 
-message( "HIIi" )
 foreach(PROGRAM ${PNACL_PROGRAMS})
+message( "Building converter : ${SOURCE_FILES}" )
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/web/format/${PROGRAM}/bin")
-message( "HI ${PROGRAM}" )
 file(GLOB_RECURSE SOURCE_FILES ${CMAKE_SOURCE_DIR}/web/format/${PROGRAM}/*.cc)
-message( "HELLO ${SOURCE_FILES}" )
+
 add_executable(${PROGRAM} ${SOURCE_FILES})
 set_target_properties(${PROGRAM} PROPERTIES OUTPUT_NAME ${PROGRAM}${PLATFORM_EXE_SUFFIX})
 
