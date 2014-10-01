@@ -2,8 +2,8 @@ import 'dart:html';
 import 'dart:async';
 import 'package:polymer/polymer.dart';
 import 'package:template_binding/template_binding.dart';
-import '../../FileTask.dart';
-import '../../iz_output_list.dart';
+import 'package:inputzone/inputzone.dart';
+import 'package:inputzone/iz_output_list.dart';
 
 
 IzOutputList outputlist;

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Copy Tool for the Web</title>
+    <script src="packages/web_components/dart_support.js"></script>
+    <link rel="import" href="packages/polymer/polymer.html">
+    <script src="packages/browser/dart.js"></script>
+    <link rel="stylesheet" href="/main.css" shim-shadowdom>
+    <link rel="import" href="packages/inputzone/iz_app.html">
+    <link rel="import" href="packages/inputzone/iz_converter.html">
+</head>
+<body  unresolved fullbleed>
+    <iz-app fit>
+        <iz-converter id="Copy" title="COPY" subtitle="A DEMO CONVERTER">
+            <embed width=0 height=0 src="bin/copy.pexe.nmf" type="application/x-pnacl" />
+        </iz-converter>
+        <iz-converter id="unCopy" title="UNCOPY" subtitle="GET BACK YOUR ORIGINAL FROM A COPY" active>
+            <embed width=0 height=0 src="bin/copy.pexe.nmf" type="application/x-pnacl" />
+        </iz-converter>
+    </iz-app>
+    <script type="application/dart">export 'package:polymer/init.dart';</script>
+</body>
+</html>

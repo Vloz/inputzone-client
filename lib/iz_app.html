@@ -1,0 +1,28 @@
+<link rel="import" href="../../packages/polymer/polymer.html">
+
+<link rel="import" href="../../packages/paper_elements/paper_input.html">
+<link rel="import" href="../../packages/paper_elements/paper_tabs.html">
+<link rel="import" href="../../packages/paper_elements/paper_tab.html">
+<link rel="import" href="../../packages/core_elements/core_toolbar.html">
+<link rel="import" href="../../packages/core_elements/core_header_panel.html">
+<link rel="import" href="../../packages/core_elements/core_animated_pages.html">
+
+<polymer-element name="iz-app">
+    <template>
+        <core-header-panel  mode="waterfall-tall" tallclass="medium-tall" fit>
+            <core-toolbar><div flex>INPUT.ZONE</div>
+                <paper-tabs id="tabs" selected="0"  role="tablist" class="bottom fit"><!--
+                    <paper-tab role="tab" class="core-selected" active>UNECM</paper-tab>
+                    <paper-tab role="tab">ECMIZE</paper-tab>-->
+                </paper-tabs>
+            </core-toolbar>
+            <div>
+                <core-animated-pages id="pages" transitions="cross-fade-all">
+                    <content select="iz-converter"></content>
+                </core-animated-pages>
+            </div>
+        </core-header-panel>
+
+    </template>
+    <script type="application/dart" src="iz_app.dart"></script>
+</polymer-element>

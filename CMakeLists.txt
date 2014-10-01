@@ -48,7 +48,6 @@ macro( pnacl_nmf _target )
     add_custom_command( TARGET ${_target}
      POST_BUILD COMMAND "python" "$ENV{NACL_SDK_ROOT}/tools/create_nmf.py"
                         $<TARGET_FILE:${_target}> > $<TARGET_FILE:${_target}>.nmf VERBATIM)
-
 endmacro()
 
 include_directories( SYSTEM $ENV{NACL_SDK_ROOT}/include )
@@ -61,18 +60,16 @@ set(
     ${CMAKE_HOME_DIRECTORY}
     )
 
-
-
-
 add_library(
     IzLib
     STATIC
-    IzLib/src/FileConverter.cc IzLib/src/IzInstance.cc
-    IzLib/include/FileConverter.h IzLib/include/IzInstance.h
+    lib/IzLib/src/FileConverter.cc lib/IzLib/src/IzInstance.cc
+    lib/IzLib/include/FileConverter.h lib/IzLib/include/IzInstance.h
 )
 
 
 foreach(PROGRAM ${PNACL_PROGRAMS})
+
 message( "Building converter : ${SOURCE_FILES}" )
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/web/format/${PROGRAM}/bin")
 file(GLOB_RECURSE SOURCE_FILES ${CMAKE_SOURCE_DIR}/web/format/${PROGRAM}/*.cc)

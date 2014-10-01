@@ -1,6 +1,6 @@
 import 'package:polymer/polymer.dart';
 import 'dart:html';
-import 'FileTask.dart';
+import 'inputzone.dart';
 
 @CustomTag('iz-output-list')
 class IzOutputList extends PolymerElement {

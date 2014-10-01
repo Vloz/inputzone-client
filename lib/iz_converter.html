@@ -1,0 +1,20 @@
+<link rel="import" href="../../packages/polymer/polymer.html">
+<link rel="import" href="iz_output.html">
+<link rel="import" href="iz_output_list.html">
+<polymer-element name="iz-converter">
+    <template layout vertical>
+        <section>
+            <h1>{{title}}</h1>
+            <h2>{{subtitle}}</h2>
+        </section>
+        <section hero layout vertical center>
+            <div id="bodystack" layout horizontal start>
+                <content></content>
+                <img style="max-width: 400px" src="/drop.svg" on-click="{{clickZone}}" flex/>
+                <iz-output-list id="outputlist"></iz-output-list>
+            </div>
+        </section>
+
+    </template>
+    <script type="application/dart" src="iz_converter.dart"></script>
+</polymer-element>
