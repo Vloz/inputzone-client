@@ -57,6 +57,7 @@ void FileConverter::Start(int32_t){
         return;
     }
 
+    UpdateTaskStatus(STARTING);
     uint64_t downloaded = 0, file_offset = 0;
     int32_t result = PP_OK;
     do {
@@ -102,14 +103,30 @@ void FileConverter::Start(int32_t){
     input = fopen(fullInputPath.c_str(), "r");
     clock_t begin, end;
     begin = clock();
+    UpdateTaskStatus(CONVERTING);
     if(Convert(id_,input,size_, "/temporary"+GetDirectoryPath(), GetBaseName(filename_), GetExtension(filename_)) == PP_OK) {
         end = clock();
         instance_->DebugMessage("Conversion done in " + std::to_string((double) (end - begin) / CLOCKS_PER_SEC)+" seconds");
-        UpdateTaskStatut("Complete");
+        UpdateTaskStatus(COMPLETED);
     }
     fclose(input);
+    delete input;
+    ref.Delete(pp::BlockUntilComplete());
+
+    pp::FileRef refdir(*fileSystem_, GetDirectoryPath().c_str());
+    // Pass ref along to keep it alive.
+    refdir.ReadDirectoryEntries(callbackFactory_->NewCallbackWithOutput(
+            &FileConverter::SendOutputURL, refdir));
+
 }
 
+void FileConverter::SendOutputURL(int32_t result, const std::vector<pp::DirectoryEntry> entries, pp::FileRef /* unused_ref */) {
+    if (result != PP_OK) {
+        Error("List failed", result);
+        return;
+    }
+    instance_->SendOutputURL(id_, "/temporary"+GetDirectoryPath()+entries.front().file_ref().GetName().AsString());
+}
 
 
 int32_t FileConverter::InitFileSystem(){
@@ -136,7 +153,7 @@ std::string FileConverter::GetDirectoryPath(){
 }
 
 void FileConverter::Abort(){
-    UpdateTaskStatut("Cancelled");
+    UpdateTaskStatus(CANCELED);
 }
 
 
@@ -156,8 +173,8 @@ std::string FileConverter::GetExtension(std::string filename) {
     return "";
 }
 
-void FileConverter::UpdateTaskStatut(std::string statut) {
-    instance_->UpdateTaskStatut(id_, statut);
+void FileConverter::UpdateTaskStatus(STATUSTYPE statustype) {
+    instance_->UpdateTaskStatut(id_, statustype);
 }
 
 void FileConverter::Error(std::string message) {

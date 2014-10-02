@@ -16,8 +16,10 @@ enum MESSAGETYPE{
     PREPROGRESS=3,
     PROGRESS=4,
     ERROR=5,
-    STATUS=6
+    STATUS=6,
+    OUTPUTURL=7
 };
+
 
 
 class IzInstanceBase :  public pp::Instance {
@@ -38,9 +40,11 @@ public:
 
     void UpdateProgress(uint64_t id, int8_t percent);
 
-    void UpdateTaskStatut(uint64_t id, std::string message);
+    void UpdateTaskStatut(uint64_t id, int8_t statusType);
 
     void TaskError(uint64_t id, std::string message);
+
+    void SendOutputURL(uint64_t id, std::string url);
 };
 
 

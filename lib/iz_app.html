@@ -10,14 +10,12 @@
 <polymer-element name="iz-app">
     <template>
         <core-header-panel  mode="waterfall-tall" tallclass="medium-tall" fit>
-            <core-toolbar><div flex>INPUT.ZONE</div>
-                <paper-tabs id="tabs" selected="0"  role="tablist" class="bottom fit"><!--
-                    <paper-tab role="tab" class="core-selected" active>UNECM</paper-tab>
-                    <paper-tab role="tab">ECMIZE</paper-tab>-->
+            <core-toolbar><div>INPUT.ZONE</div>
+                <paper-tabs id="tabs" selected="0"  role="tablist" class="bottom fit">
                 </paper-tabs>
             </core-toolbar>
             <div>
-                <core-animated-pages id="pages" transitions="cross-fade-all">
+                <core-animated-pages id="pages">
                     <content select="iz-converter"></content>
                 </core-animated-pages>
             </div>

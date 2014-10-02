@@ -20,6 +20,16 @@
 
 class IzInstanceBase;
 
+
+enum STATUSTYPE{
+    CANCELED=0,
+    STARTING=1,
+    CONVERTING=2,
+    COMPLETING=3,
+    COMPLETED=4,
+    ERRORED=5
+};
+
 class FileConverter {
 public:
      FileConverter(IzInstanceBase *instance,const pp::Var& var_message,std::string converterName = "NONAME");
@@ -31,7 +41,7 @@ public:
     std::string GetBaseName(std::string filename);
     std::string GetExtension(std::string filename);
 
-    void UpdateTaskStatut(std::string statut);
+    void UpdateTaskStatus(STATUSTYPE statustype);
     void UpdateProgress(int8_t percent);
     void UpdatePreProgress(int8_t percent);
     void Error(std::string message);
@@ -50,6 +60,7 @@ private:
 
 
 
+
     uint64_t id_;
     std::string url_;
     std::string filename_;
@@ -63,6 +74,8 @@ private:
     void Start(int32_t);
 
     int32_t InitFileSystem();
+
+    void SendOutputURL(int32_t result,const std::vector<pp::DirectoryEntry> entries,pp::FileRef /* unused_ref */);
 
     void Abort();
 

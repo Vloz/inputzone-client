@@ -1,9 +1,14 @@
+#include <irt_dev.h>
 #include "IzInstance.h"
 
 
 IzInstanceBase::IzInstanceBase(PP_Instance instance) : pp::Instance(instance)
 {}
 
+
+void IzInstanceBase::SendOutputURL(uint64_t id, std::string url){
+    PostMessage(pp::Var(std::to_string(id)+"|"+std::to_string(OUTPUTURL)+"|"+url));
+}
 
 void IzInstanceBase::UpdateProgress(uint64_t id, int8_t percent){
     PostMessage(pp::Var(std::to_string(id)+"|"+std::to_string(PROGRESS)+"|"+std::to_string((int)percent)));
@@ -17,8 +22,8 @@ void IzInstanceBase::TaskError(uint64_t id, std::string message){
     PostMessage(pp::Var(std::to_string(id)+"|"+std::to_string(ERROR)+"|"+message));
 }
 
-void IzInstanceBase::UpdateTaskStatut(uint64_t id, std::string message){
-    PostMessage(pp::Var(std::to_string(id)+"|"+std::to_string(STATUS)+"|"+message));
+void IzInstanceBase::UpdateTaskStatut(uint64_t id, int8_t statusType){
+    PostMessage(pp::Var(std::to_string(id)+"|"+std::to_string(STATUS)+"|"+std::to_string(statusType)));
 }
 
 

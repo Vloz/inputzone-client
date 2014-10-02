@@ -2,6 +2,7 @@
 <link rel="import" href="../../packages/paper_elements/paper_progress.html">
 <link rel="import" href="../../packages/paper_elements/paper_icon_button.html">
 <link rel="import" href="../../packages/core_elements/core_icons.html">
+<link rel="import" href="iz_ellipsis.html">
 
 <polymer-element name="iz-output">
   <template>
@@ -35,14 +36,13 @@
               width: 400px;}
       }
   </style>
-  <div id="main" style="background-color:white; display: flex; flex-direction: row; padding: 10px; color: #666; border-radius: 4px; margin: 20px 0 ">
-      <div style="overflow: hidden" layout vertical center flex>
-          <div style="font-weight: bold; font-size: 0.75em">{{filename}}</div>
-          <paper-progress value="{{progress}}" style="width: 100%;"></paper-progress>
-          <div style="color: #3b8183">{{statut}}:{{progress}}%</div>
+  <div id="main" style="background-color:white; display: flex; flex-direction: row; padding: 10px; height: 50px;  color: #666; border-radius: 4px; margin: 20px 0 ">
+      <div style="overflow: hidden"  vertical around-justified layout center flex>
+          <div style="font-weight: bold; font-size: 0.75em">{{context.filename}}</div>
+          <paper-progress value="{{context.progress}}" secondaryprogress="{{context.preprogress}}" style="width: 100%;"></paper-progress>
+          <div style="color: #3b8183; font-size:0.7em">{{context.status}}<iz-ellipsis hidden?="{{context.status_id==0 || context.status_id==4 ||context.status_id==5}}"></iz-ellipsis></div>
       </div>
-      <paper-icon-button fill="" icon="file-download" role="button" tabindex="0" aria-label="arrow-back" disabled?="{{progress!=100}}"></paper-icon-button>
-      <paper-icon-button fill="" icon="{{progress==100?'delete':'cancel'}}" role="button" tabindex="0" aria-label="arrow-back" class="" on-click="{{remove}}"></paper-icon-button>
+      <paper-icon-button style="align-self: center" fill="" icon="{{context.status_id==4?'file-download':'cancel'}}" role="button" tabindex="0" aria-label="arrow-back" disabled?="{{context.status_id==0||context.status_id==5}}" on-click="{{CancelORDownloadClicked}}"></paper-icon-button>
   </div>
 
   </template>

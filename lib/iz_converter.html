@@ -1,8 +1,12 @@
 <link rel="import" href="../../packages/polymer/polymer.html">
 <link rel="import" href="iz_output.html">
-<link rel="import" href="iz_output_list.html">
 <polymer-element name="iz-converter">
     <template layout vertical>
+        <style>
+            #bodystack>*{
+                margin: 0 25px;
+            }
+        </style>
         <section>
             <h1>{{title}}</h1>
             <h2>{{subtitle}}</h2>
@@ -11,7 +15,11 @@
             <div id="bodystack" layout horizontal start>
                 <content></content>
                 <img style="max-width: 400px" src="/drop.svg" on-click="{{clickZone}}" flex/>
-                <iz-output-list id="outputlist"></iz-output-list>
+                <div layout vertical>
+                <template repeat="{{task in tasks}}">
+                    <iz-output id="{{task.id}}" context="{{task}}" filename="{{task.filename}}" hero-id="{{task.id}}" on-download="{{downloadTask}}" on-remove="{{removeTask}}"></iz-output>
+                </template>
+                </div>
             </div>
         </section>
 

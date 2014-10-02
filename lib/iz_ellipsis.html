@@ -1,0 +1,26 @@
+<link rel="import" href="../../packages/polymer/polymer.html">
+<polymer-element name="iz-ellipsis">
+    <template>
+        ...
+    </template>
+    <script type="application/dart">
+        import 'package:polymer/polymer.dart';
+        import 'dart:html';
+        import 'dart:async';
+@CustomTag('iz-ellipsis')
+class IzEllipsis extends PolymerElement {
+
+  IzEllipsis.created() : super.created(){
+    new Timer.periodic(const Duration(milliseconds: 500), (_){
+      if(this.shadowRoot.innerHtml.length==3)
+        this.shadowRoot.innerHtml='.&nbsp;&nbsp;';
+      else if(this.shadowRoot.innerHtml.length<9)
+        this.shadowRoot.innerHtml='...';
+      else
+        this.shadowRoot.innerHtml='..&nbsp;';
+    });
+  }
+}
+    </script>
+
+</polymer-element>

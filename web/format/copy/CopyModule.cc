@@ -3,9 +3,9 @@
 #include "IzInstance.h"
 #include "FileConverter.h"
 
-class CopyTask : FileConverter {
+class CopyConverter : FileConverter {
 public:
-    CopyTask( IzInstanceBase *instance,const pp::Var& var_message) : FileConverter(instance, var_message, "Copy"){
+    CopyConverter( IzInstanceBase *instance,const pp::Var& var_message) : FileConverter(instance, var_message, "Copy"){
     };
 private:
 
@@ -43,7 +43,7 @@ public:
     virtual ~CopyModule() {}
 
     virtual pp::Instance* CreateInstance(PP_Instance instance) {
-        return new IzInstance<CopyTask>(instance);
+        return new IzInstance<CopyConverter>(instance);
     }
 };
 

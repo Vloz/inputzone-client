@@ -2,7 +2,6 @@ import 'package:polymer/polymer.dart';
 import 'dart:html';
 import 'dart:js';
 import 'inputzone.dart';
-import 'iz_output_list.dart';
 
 @CustomTag('iz-converter')
 class IzConverter extends PolymerElement {
@@ -13,30 +12,78 @@ class IzConverter extends PolymerElement {
   
   EmbedElement embed;
   JsObject naclproxy;
-  IzOutputList outputlist;
+  
+  ObservableList<FileTask> tasks = new ObservableList<FileTask>();
 
   
-  IzConverter.created() : super.created(){  
+  IzConverter.created() : super.created(){ 
     embed= this.querySelector("embed");
     embed.onLoad.listen((_){
-          embed.on['message'].listen((s)=>print((s as MessageEvent).data.toString()));
+          embed.on['message'].listen((s){
+            print("new message:"+(s as MessageEvent).data.toString());
+            var msg = new TaskMessage((s as MessageEvent).data.toString());
+            if(msg.id!='0')
+              handleTaskMessage(msg);
+          });
           naclproxy = new JsObject.fromBrowserObject(embed); 
         });
-
-    
-  }
-  
-  ready(){
-    outputlist = $['outputlist'];
   }
   
   
   void clickZone(){
-    var task = new FileTask("test");
-    outputlist.addTask(task);
-//    InputElement input = new InputElement(type:'file');
-//    input.onChange.first.then((evt)=>handleFile(evt));
-//    input.click();
+    InputElement input = new InputElement(type:'file');
+    input.onChange.first.then((evt)=>handleFile(evt));
+    input.click();
+  }
+  
+
+  void handleFile(Event e){
+     var input = (e.target as InputElement);
+     var files = input.files;
+
+         // Loop through the FileList and render image files as thumbnails.
+         input.files.forEach((f) {
+           newInput(f);
+         });
+   }
+  
+  
+  void newInput(File file){
+    var url = Url.createObjectUrl(file);
+    var task = new FileTask(file.name);
+    addTask(task);
+
+    naclproxy.callMethod('postMessage', ['type\n'+MESSAGETYPE.START.toString()+'\nid\n'+task.id+'\nurl\n'+url+'\nfilename\n'+file.name+'\nsize\n'+file.size.toString()]); 
+  }
+  
+  void handleTaskMessage(TaskMessage message){
+    FileTask targetTask = tasks.firstWhere((o)=>o.id == message.id);
+    print(message.messagetype);
+    switch(message.messagetype){
+      case MESSAGETYPE.PROGRESS:
+        targetTask.updateProgress(message.body);
+        break;
+      case MESSAGETYPE.PREPROGRESS:
+        targetTask.updateProgress(message.body,true);
+        break;
+      case MESSAGETYPE.STATUS:
+        targetTask.updateStatus(message.body);
+        break;
+      case MESSAGETYPE.OUTPUTURL:
+              targetTask.output_file_url = '  filesystem:http://'+window.location.host+message.body;
+              break;
+    }
+    
+    print(targetTask.preprogress.toString());
+  }
+  
+  
+  void addTask(FileTask input){
+    tasks.add(input);
+  }
+  
+  void removeTask(Event e, var details, Node target){
+    tasks.removeWhere((f)=> f.id == int.parse(details));
   }
   
 }

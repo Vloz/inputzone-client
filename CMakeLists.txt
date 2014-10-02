@@ -52,7 +52,7 @@ endmacro()
 
 include_directories( SYSTEM $ENV{NACL_SDK_ROOT}/include )
 include_directories( SYSTEM $ENV{NACL_SDK_ROOT}/include/newlib )
-include_directories( IzLib/include )
+include_directories( lib/IzLib/include )
 link_directories( $ENV{NACL_SDK_ROOT}/lib/pnacl/Release )
 
 set(
