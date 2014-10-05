@@ -27,21 +27,25 @@ enum STATUSTYPE{
     CONVERTING=2,
     COMPLETING=3,
     COMPLETED=4,
-    ERRORED=5
+    ERRORED=5,
+    CANCELING=6
 };
 
 class FileConverter {
 public:
+
+    void Cancel();
      FileConverter(IzInstanceBase *instance,const pp::Var& var_message,std::string converterName = "NONAME");
     ~FileConverter();
     virtual int32_t Convert(double taskId, FILE* input,uint64_t inputSize, std::string directoryPath , std::string baseName, std::string inputExtension);
 
 
-    std::string GetDirectoryPath();
+    std::string GetMainDirectoryPath();
     std::string GetBaseName(std::string filename);
     std::string GetExtension(std::string filename);
 
     void UpdateTaskStatus(STATUSTYPE statustype);
+    void UpdateTaskDetails(std::string text);
     void UpdateProgress(int8_t percent);
     void UpdatePreProgress(int8_t percent);
     void Error(std::string message);
@@ -49,6 +53,7 @@ public:
 
 protected:
     IzInstanceBase* instance_;
+    bool isCancelling_;
 private:
 
     pp::FileSystem *fileSystem_;
@@ -65,19 +70,29 @@ private:
     std::string url_;
     std::string filename_;
     std::string converterName_;
+    std::string mountPoint_;
     uint64_t size_;
     float currentProgress_;
     char* buffer_;
-    bool isFilesystemOpen;
+    FILE* input_;
+    uint64_t inputCursor;
+
 
 
     void Start(int32_t);
 
-    int32_t InitFileSystem();
+    void SendOutputURL(int32_t result,const std::vector<pp::DirectoryEntry> entries,pp::FileRef directory);
 
-    void SendOutputURL(int32_t result,const std::vector<pp::DirectoryEntry> entries,pp::FileRef /* unused_ref */);
-
-    void Abort();
+    void DeleteTaskDirectory();
 
 
+    std::string GetOutputDirectoryPath();
+
+    std::string GetInputDirectoryPath();
+
+    void EndOfThread(int);
+
+    void DeleteDirectory(int32_t result, std::vector<pp::DirectoryEntry> const entries, pp::FileRef directory);
+
+    void DeleteInputDirectory();
 };

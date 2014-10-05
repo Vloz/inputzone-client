@@ -11,14 +11,11 @@
     <link rel="import" href="packages/inputzone/iz_converter.html">
 </head>
 <body  unresolved fullbleed>
-    <iz-app fit>
-        <iz-converter id="Copy" title="COPY" subtitle="A DEMO CONVERTER">
-            <embed width=0 height=0 src="bin/copy.pexe.nmf" type="application/x-pnacl" />
-        </iz-converter>
-        <iz-converter id="unCopy" title="UNCOPY" subtitle="GET BACK YOUR ORIGINAL FROM A COPY" active>
-            <embed width=0 height=0 src="bin/copy.pexe.nmf" type="application/x-pnacl" />
-        </iz-converter>
-    </iz-app>
-    <script type="application/dart">export 'package:polymer/init.dart';</script>
+<iz-app fit>
+    <iz-converter id="unecm" title="UNECM" subtitle="ECM TOOLS FOR THE WEB" inputExt=".ecm">
+        <embed width=0 height=0 src="bin/unecm.pexe.nmf" type="application/x-pnacl" />
+    </iz-converter>
+</iz-app>
+<script type="application/dart">export 'package:polymer/init.dart';</script>
 </body>
 </html>

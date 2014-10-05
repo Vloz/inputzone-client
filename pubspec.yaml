@@ -7,6 +7,6 @@ dependencies:
 transformers:
 - polymer:
     entry_points:      
-      - web/format/copy/copy.html
-      - web/format/copy/index.html
+      - web/converters/unecm/index.html
+      - web/converters/copy/index.html
        

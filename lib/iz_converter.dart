@@ -9,6 +9,7 @@ class IzConverter extends PolymerElement {
   @published String title = "Title";
   @published String subtitle = "A short Subtitle"; 
   @published String tabname = "tabname";
+  @published String inputExt="*/*";
   
   EmbedElement embed;
   JsObject naclproxy;
@@ -31,9 +32,10 @@ class IzConverter extends PolymerElement {
   
   
   void clickZone(){
-    InputElement input = new InputElement(type:'file');
-    input.onChange.first.then((evt)=>handleFile(evt));
-    input.click();
+    InputElement input = new InputElement(type:'file')
+    ..attributes.addAll({'accept':inputExt})
+    ..onChange.first.then((evt)=>handleFile(evt))
+    ..click();
   }
   
 
@@ -58,7 +60,6 @@ class IzConverter extends PolymerElement {
   
   void handleTaskMessage(TaskMessage message){
     FileTask targetTask = tasks.firstWhere((o)=>o.id == message.id);
-    print(message.messagetype);
     switch(message.messagetype){
       case MESSAGETYPE.PROGRESS:
         targetTask.updateProgress(message.body);
@@ -70,11 +71,13 @@ class IzConverter extends PolymerElement {
         targetTask.updateStatus(message.body);
         break;
       case MESSAGETYPE.OUTPUTURL:
-              targetTask.output_file_url = '  filesystem:http://'+window.location.host+message.body;
-              break;
+        targetTask.output_file_url = 'filesystem:http://'+window.location.host+message.body;
+        break;
+      case MESSAGETYPE.DETAILS:
+        targetTask.details = message.body;
+        break;
     }
     
-    print(targetTask.preprogress.toString());
   }
   
   
@@ -84,6 +87,10 @@ class IzConverter extends PolymerElement {
   
   void removeTask(Event e, var details, Node target){
     tasks.removeWhere((f)=> f.id == int.parse(details));
+  }
+  
+  void cancelTask(Event e, var details, Node target){
+    naclproxy.callMethod('postMessage', ['type\n'+MESSAGETYPE.CANCEL.toString()+'\nid\n'+details]); 
   }
   
 }

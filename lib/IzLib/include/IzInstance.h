@@ -11,13 +11,14 @@
 class FileConverter;
 
 enum MESSAGETYPE{
-    START=1,
-    CANCEL=2,
-    PREPROGRESS=3,
-    PROGRESS=4,
-    ERROR=5,
-    STATUS=6,
-    OUTPUTURL=7
+    START=1, //--> Start a file convertion with the specified url
+    CANCEL=2, //--> Cancelation query from ui
+    PREPROGRESS=3, //<-- Update preprogress value of the task
+    PROGRESS=4, //<--        '' progress ''
+    ERROR=5, //<-- General Module Error
+    STATUS=6, //<-- Status of a task see FileConverter.h for types of Status
+    OUTPUTURL=7, //<-- Send the output file url to the ui for download
+    DETAILS=8 //<-- Optional details wrote under the task UI
 };
 
 
@@ -40,9 +41,9 @@ public:
 
     void UpdateProgress(uint64_t id, int8_t percent);
 
-    void UpdateTaskStatut(uint64_t id, int8_t statusType);
+    void UpdateTaskDetails(uint64_t id, std::string text);
 
-    void TaskError(uint64_t id, std::string message);
+    void UpdateTaskStatut(uint64_t id, int8_t statusType);
 
     void SendOutputURL(uint64_t id, std::string url);
 };
@@ -66,6 +67,13 @@ public:
             case START :
                 fileTasks_.insert(std::pair<uint64_t ,T*>(getMessageId(var_message),new T(this,var_message)));
                 break;
+            case CANCEL:
+            {
+
+                uint64_t id = getMessageId(var_message);
+                fileTasks_[id]->Cancel();
+                break;
+            }
             default:
                 DebugErrorMessage("Incorrect Iz message type!", getMessageType(var_message));
                 return;

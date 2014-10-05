@@ -16,12 +16,13 @@ class FileTask extends Observable{
 
   @observable int status_id=1;
   
+  @observable String details='';  
+  
   FileTask(this.filename){ 
     this.id = new DateTime.now().millisecondsSinceEpoch.toString();
   }
   
   void updateProgress(String value, [isPreprogress=false]){
-    print("value:"+value);
     if(isPreprogress)
       preprogress=int.parse(value); 
     else
@@ -44,11 +45,15 @@ class FileTask extends Observable{
         status= 'Finalizing';
         break;
       case STATUSTYPE.COMPLETED:
+        progress=100;//Sometime it stuck to 99%
         status= 'Finished, click the button to retrieve the converted file.';
         break;
       case STATUSTYPE.ERRRORED:
         status= 'ERROR';
         break;
+      case STATUSTYPE.CANCELING:
+              status= 'Canceling';
+              break;
       default:
         status= 'unknown';
       
@@ -70,9 +75,10 @@ class MESSAGETYPE {
   static const ERROR = const MESSAGETYPE._internal(5);
   static const STATUS = const MESSAGETYPE._internal(6);
   static const OUTPUTURL = const MESSAGETYPE._internal(7);
+  static const DETAILS = const MESSAGETYPE._internal(8);
   
 
-  static get values => [NULL,START, CANCEL,PREPROGRESS,PROGRESS,ERROR,STATUS,OUTPUTURL];
+  static get values => [NULL,START, CANCEL,PREPROGRESS,PROGRESS,ERROR,STATUS,OUTPUTURL,DETAILS];
 }
 
 
@@ -87,9 +93,10 @@ class STATUSTYPE {
   static const COMPLETING = const MESSAGETYPE._internal(3);
   static const COMPLETED = const MESSAGETYPE._internal(4);
   static const ERRRORED = const MESSAGETYPE._internal(5);
+  static const CANCELING = const MESSAGETYPE._internal(6);
   
 
-  static get values => [CANCELED,STARTING, CONVERTING,COMPLETING,COMPLETED,ERRRORED];
+  static get values => [CANCELED,STARTING, CONVERTING,COMPLETING,COMPLETED,ERRRORED,CANCELING];
 }
 
 

@@ -1,7 +1,7 @@
 #This Cmake config file need the environment variable NACL_SDK_ROOT to be set on your "pepper_XX" directory
 
 cmake_minimum_required(VERSION 2.8.4)
-set(PNACL_PROGRAMS copy)
+set(PNACL_PROGRAMS copy unecm)
 project(inputzone)
 
 include( CMakeForceCompiler )
@@ -28,6 +28,8 @@ set( CMAKE_C_FLAGS              "-U__STRICT_ANSI__" CACHE STRING "" )
 set( CMAKE_CXX_FLAGS            "-U__STRICT_ANSI__" CACHE STRING "" )
 set( CMAKE_C_FLAGS_RELEASE      "-O4 -ffast-math" CACHE STRING "" )
 set( CMAKE_CXX_FLAGS_RELEASE    "-O4 -ffast-math" CACHE STRING "" )
+set( CMAKE_C_FLAGS_DEBUG     "-g  " CACHE STRING "" )
+set( CMAKE_CXX_FLAGS_DEBUG    "-g " CACHE STRING "" )
 
 cmake_force_c_compiler(         ${CMAKE_C_COMPILER} Clang )
 cmake_force_cxx_compiler(       ${CMAKE_CXX_COMPILER} Clang )
@@ -37,6 +39,13 @@ set( CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY )
 set( CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY )
 set( CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY )
 
+#Used for debugging
+macro( pnacl_copy_llvm_bitcode _target )
+add_custom_command(TARGET ${_target} POST_BUILD
+ COMMENT "Copying ${_target}.bc to bin for debug"
+ COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BINARY_DIR}
+ COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${_target}> ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${PROGRAM}.bc)
+endmacro()
 
 macro( pnacl_finalise _target )
   add_custom_command( TARGET ${_target} POST_BUILD
@@ -45,9 +54,14 @@ macro( pnacl_finalise _target )
 endmacro()
 
 macro( pnacl_nmf _target )
-    add_custom_command( TARGET ${_target}
-     POST_BUILD COMMAND "python" "$ENV{NACL_SDK_ROOT}/tools/create_nmf.py"
-                        $<TARGET_FILE:${_target}> > $<TARGET_FILE:${_target}>.nmf VERBATIM)
+
+    if(CMAKE_BUILD_TYPE MATCHES "Debug")
+        add_custom_command( TARGET ${_target}
+         POST_BUILD COMMAND "python" "$ENV{NACL_SDK_ROOT}/tools/create_nmf.py" $<TARGET_FILE:${_target}> ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${PROGRAM}.bc > $<TARGET_FILE:${_target}>.nmf --pnacl-debug-optlevel=0 VERBATIM)
+    else()
+        add_custom_command( TARGET ${_target}
+        POST_BUILD COMMAND "python" "$ENV{NACL_SDK_ROOT}/tools/create_nmf.py" $<TARGET_FILE:${_target}> > $<TARGET_FILE:${_target}>.nmf VERBATIM)
+    endif(CMAKE_BUILD_TYPE MATCHES "Debug")
 endmacro()
 
 include_directories( SYSTEM $ENV{NACL_SDK_ROOT}/include )
@@ -71,9 +85,13 @@ add_library(
 foreach(PROGRAM ${PNACL_PROGRAMS})
 
 message( "Building converter : ${SOURCE_FILES}" )
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/web/format/${PROGRAM}/bin")
-file(GLOB_RECURSE SOURCE_FILES ${CMAKE_SOURCE_DIR}/web/format/${PROGRAM}/*.cc)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/web/converters/${PROGRAM}/bin")
+file(GLOB_RECURSE SOURCE_FILES ${CMAKE_SOURCE_DIR}/web/converters/${PROGRAM}/*.cc)
 
+
+
+MESSAGE(POST_BUILD COMMAND "python" "$ENV{NACL_SDK_ROOT}/tools/create_nmf.py" $<TARGET_FILE:${_target}> $<$<CONFIG:Debug>:"${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${PROGRAM}.bc"> > $<TARGET_FILE:${_target}>.nmf
+                                $<$<CONFIG:Debug>:--pnacl-debug-optlevel=0> VERBATIM)
 add_executable(${PROGRAM} ${SOURCE_FILES})
 set_target_properties(${PROGRAM} PROPERTIES OUTPUT_NAME ${PROGRAM}${PLATFORM_EXE_SUFFIX})
 
@@ -85,7 +103,9 @@ target_link_libraries(
 
 )
 
+IF(CMAKE_BUILD_TYPE MATCHES "Debug")
+    pnacl_copy_llvm_bitcode(${PROGRAM})
+ENDIF(CMAKE_BUILD_TYPE MATCHES "Debug")
 pnacl_finalise(${PROGRAM})
 pnacl_nmf(${PROGRAM})
-
 endforeach()

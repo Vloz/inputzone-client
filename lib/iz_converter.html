@@ -17,7 +17,7 @@
                 <img style="max-width: 400px" src="/drop.svg" on-click="{{clickZone}}" flex/>
                 <div layout vertical>
                 <template repeat="{{task in tasks}}">
-                    <iz-output id="{{task.id}}" context="{{task}}" filename="{{task.filename}}" hero-id="{{task.id}}" on-download="{{downloadTask}}" on-remove="{{removeTask}}"></iz-output>
+                    <iz-output id="{{task.id}}" context="{{task}}" filename="{{task.filename}}" hero-id="{{task.id}}" on-download="{{downloadTask}}" on-cancel="{{cancelTask}}" on-remove="{{removeTask}}"></iz-output>
                 </template>
                 </div>
             </div>

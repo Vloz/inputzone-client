@@ -37,22 +37,28 @@
     </script>
 <embed id="mynacl"
        width=600 height=100
-       src="format/copy/bin/copy.pexe.nmf"
+       src="converters/unecm/bin/unecm.pexe.nmf"
        type="application/x-pnacl" />
     </div>
+<input type="button" value="Cancel" onclick="cancel()">
 
 <script type="application/javascript">
+    var id;
+    var naclObj;
     $('#fileinput').change(function(evt){
         var files = evt.target.files; // FileList object
 
         var f = files[0];
         var url = window.webkitURL.createObjectURL(f);
-        var naclObj = document.getElementById('mynacl');
+        naclObj = document.getElementById('mynacl');
 
-        var id = new Date().getTime();
+        id = new Date().getTime();
         console.log(id.toString());
         naclObj.postMessage('type\n1\nid\n'+id.toString()+'\nurl\n'+url+'\nfilename\n'+f.name+'\nsize\n'+f.size.toString());
     });
+    function cancel(){
+        naclObj.postMessage('type\n2\nid\n'+id.toString());
+    }
 </script>
 </body>
 </html>

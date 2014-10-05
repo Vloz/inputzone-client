@@ -18,14 +18,15 @@ void IzInstanceBase::UpdatePreProgress(uint64_t id, int8_t percent){
     PostMessage(pp::Var(std::to_string(id)+"|"+std::to_string(PREPROGRESS)+"|"+std::to_string((int)percent)));
 }
 
-void IzInstanceBase::TaskError(uint64_t id, std::string message){
-    PostMessage(pp::Var(std::to_string(id)+"|"+std::to_string(ERROR)+"|"+message));
-}
 
 void IzInstanceBase::UpdateTaskStatut(uint64_t id, int8_t statusType){
     PostMessage(pp::Var(std::to_string(id)+"|"+std::to_string(STATUS)+"|"+std::to_string(statusType)));
 }
 
+
+void IzInstanceBase::UpdateTaskDetails(uint64_t id, std::string text) {
+    PostMessage(pp::Var(std::to_string(id)+"|"+std::to_string(DETAILS)+"|"+text));
+}
 
 
 void IzInstanceBase::DebugErrorMessage(const std::string& message, int32_t result) {
@@ -34,7 +35,7 @@ void IzInstanceBase::DebugErrorMessage(const std::string& message, int32_t resul
 }
 
 void IzInstanceBase::DebugMessage(const std::string& message) {
-    printf("DEBUG MESSAGE |%s",message.c_str());
+    printf(message.c_str());
     fflush(stdout);
 }
 
