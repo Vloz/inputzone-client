@@ -3,7 +3,10 @@
 #include "IzInstance.h"
 #include "FileConverter.h"
 
-
+/*
+"UNECM - Decoder for Error Code Modeler format v1.0\n"
+    "Copyright (C) 2002 Neill Corlett\n\n"
+ */
 
 /* Data types */
 typedef uint8_t ecc_uint8;

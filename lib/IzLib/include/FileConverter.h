@@ -14,12 +14,14 @@
 #include <ppapi/cpp/url_loader.h>
 #include <ppapi/cpp/url_request_info.h>
 #include "IzInstance.h"
+#include "InputDownloader.h"
 
 
-#define BUFFER_SIZE 32000000
+#define BUFFER_SIZE 32000 //32000000
 
 class IzInstanceBase;
 
+class InputDownloader;
 
 enum STATUSTYPE{
     CANCELED=0,
@@ -61,6 +63,7 @@ private:
     pp::URLRequestInfo *urlRequestInfo_;
 
     pp::SimpleThread *thread_;
+    pp::SimpleThread *timeoutThread_;
     pp::CompletionCallbackFactory<FileConverter>* callbackFactory_;
 
 
@@ -76,11 +79,30 @@ private:
     char* buffer_;
     FILE* input_;
     uint64_t inputCursor;
+private:
+    STATUSTYPE status_;
+    InputDownloader* inputDownloader_;
+    pp::CompletionCallback inputDownloadDonecc_;
 
 
 
     void Start(int32_t);
 
+public:
+    IzInstanceBase *getInstance_() const {
+        return instance_;
+    }
+
+    bool getIsCancelling_() const {
+        return isCancelling_;
+    }
+
+    STATUSTYPE const &getStatus_() const {
+        return status_;
+    }
+
+
+private:
     void SendOutputURL(int32_t result,const std::vector<pp::DirectoryEntry> entries,pp::FileRef directory);
 
     void DeleteTaskDirectory();
@@ -95,4 +117,10 @@ private:
     void DeleteDirectory(int32_t result, std::vector<pp::DirectoryEntry> const entries, pp::FileRef directory);
 
     void DeleteInputDirectory();
+
+    void CheckForTimeout(int);
+
+    void InputDownloadDone(int32_t result);
+
+    void LaunchInputDownload(int32_t fsOpeningResult);
 };

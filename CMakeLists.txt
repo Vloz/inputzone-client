@@ -1,4 +1,5 @@
 #This Cmake config file need the environment variable NACL_SDK_ROOT to be set on your "pepper_XX" directory
+#I recommend to set the environnement variables $NACL_EXE_STDOUT & $NACL_EXE_STDERR to 'dev://postmessage'
 
 cmake_minimum_required(VERSION 2.8.4)
 set(PNACL_PROGRAMS copy unecm)
@@ -26,6 +27,7 @@ set( CMAKE_C_COMPILER           "${PLATFORM_PREFIX}/bin64/${PLATFORM_TRIPLET}-cl
 set( CMAKE_CXX_COMPILER         "${PLATFORM_PREFIX}/bin64/${PLATFORM_TRIPLET}-clang++" )
 set( CMAKE_C_FLAGS              "-U__STRICT_ANSI__" CACHE STRING "" )
 set( CMAKE_CXX_FLAGS            "-U__STRICT_ANSI__" CACHE STRING "" )
+set( CMAKE_CXX_FLAGS            "-Wc++11-extensions" CACHE STRING "" )
 set( CMAKE_C_FLAGS_RELEASE      "-O4 -ffast-math" CACHE STRING "" )
 set( CMAKE_CXX_FLAGS_RELEASE    "-O4 -ffast-math" CACHE STRING "" )
 set( CMAKE_C_FLAGS_DEBUG     "-g  " CACHE STRING "" )
@@ -77,8 +79,8 @@ set(
 add_library(
     IzLib
     STATIC
-    lib/IzLib/src/FileConverter.cc lib/IzLib/src/IzInstance.cc
-    lib/IzLib/include/FileConverter.h lib/IzLib/include/IzInstance.h
+    lib/IzLib/src/FileConverter.cc lib/IzLib/src/IzInstance.cc lib/IzLib/src/InputDownloader.cc
+    lib/IzLib/include/FileConverter.h lib/IzLib/include/IzInstance.h lib/IzLib/include/InputDownloader.h
 )
 
 

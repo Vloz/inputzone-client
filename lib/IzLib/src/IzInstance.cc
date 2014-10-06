@@ -35,7 +35,7 @@ void IzInstanceBase::DebugErrorMessage(const std::string& message, int32_t resul
 }
 
 void IzInstanceBase::DebugMessage(const std::string& message) {
-    printf(message.c_str());
+    printf("%s",message.c_str());
     fflush(stdout);
 }
 

@@ -21,7 +21,7 @@
           from {margin-left: -50px;
           width: 0px;}
           to {margin-left: 0px;
-          width: 400px;}
+          width: 360px;}
       }
 
       /* Standard syntax */
@@ -29,7 +29,7 @@
           from {margin-left: -50px;
               width: 0px;}
           to {margin-left: 0px;
-              width: 400px;}
+              width: 360px;}
       }
 
       .outputError #status{
@@ -56,7 +56,7 @@
           background-color: #7d7f7d;
       }
   </style>
-  <div class="{{context.status_id == 0 ? 'outputCancel':''}} {{context.status_id == 5 ? 'outputError':''}}" style="background-color:white; display: flex; flex-direction: row; padding: 10px; min-height: 50px;  color: #666; border-radius: 4px; margin: 20px 0 ">
+  <div class="{{context.status_id == 0 ? 'outputCancel':''}} {{context.status_id == 5 ? 'outputError':''}}" style="background-color:white; display: flex; flex-direction: row; padding: 10px; min-height: 50px;  color: #666; border-radius: 2px; margin: 10px 0 ">
       <div vertical around-justified layout center flex>
           <div style="font-size: 0.75em">{{context.filename}}</div>
           <paper-progress value="{{context.progress}}" secondaryprogress="{{context.preprogress}}" style="width: 100%;"></paper-progress>

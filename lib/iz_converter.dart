@@ -10,6 +10,9 @@ class IzConverter extends PolymerElement {
   @published String subtitle = "A short Subtitle"; 
   @published String tabname = "tabname";
   @published String inputExt="*/*";
+  @published String inputHeader="";
+  @published String outputHeader="";
+  @published String credits="";
   
   EmbedElement embed;
   JsObject naclproxy;
