@@ -15,7 +15,7 @@ class InputDownloader{
 
 public:
 
-    InputDownloader(std::string url,std::string savePath,uint64_t size,  pp::FileSystem* fileSystem,FileConverter &converter,pp::CompletionCallback& cc);
+    InputDownloader(std::string url,std::string savePath,uint64_t size,  pp::FileSystem* fileSystem,FileConverter &converter);
 
     virtual ~InputDownloader();
 
@@ -39,7 +39,6 @@ private:
     clock_t timeouTick_;
     clock_t timeoutPreviousTick_;
     uint64_t file_offset_;
-    pp::CompletionCallback& cc_;
 
     void DownloadTry(int);
 

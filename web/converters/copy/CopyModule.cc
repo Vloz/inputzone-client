@@ -3,7 +3,7 @@
 #include "IzInstance.h"
 #include "FileConverter.h"
 
-class CopyConverter : FileConverter {
+class CopyConverter : public FileConverter {
 public:
     CopyConverter( IzInstanceBase *instance,const pp::Var& var_message) : FileConverter(instance, var_message, "Copy"){
     };
@@ -20,6 +20,7 @@ private:
             Error("Cannot create the output file.");
             return -1;
         }
+        setvbuf ( output, NULL , _IOFBF , 32541536 );
 
         unsigned int n = 0;
         do {

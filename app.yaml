@@ -1,0 +1,49 @@
+application: input-zone
+version: 1
+runtime: python27
+api_version: 1
+threadsafe: yes
+
+handlers:
+
+- url: /(.+)
+  static_files: build/web/\1
+  upload: build/web/(.*)
+
+- url: /
+  static_files: build/web/index.html
+  upload: build/web/index.html
+
+skip_files:
+- ^\web$
+- ^\lib$
+- ^\packages$
+- CMakeLists.txt
+- LICENSE
+- pubspec.lock
+- pubspec.yaml
+- ^(.*/)\.bc
+- ^(.*/)\.cc
+- ^(.*/)\.cpp
+- ^(.*/)\.h
+- ^(.*/)\.c
+- ^(.*/)test\.html
+- ^(.*/)?app\.yaml
+- ^(.*/)?app\.yml
+- ^(.*/)?#.*#
+- ^(.*/)?.*~
+- ^(.*/)?.*\.py[co]
+- ^(.*/)?.*/RCS/.*
+- ^(.*/)?\..*
+- ^(.*/)?tests$
+- ^(.*/)?test$
+- ^test/(.*/)?
+- ^COPYING.LESSER
+- ^README\..*
+- \.gitignore
+- ^\.git/.*
+- \.*\.lint$
+- ^fabfile\.py
+- ^testrunner\.py
+- ^grunt\.js
+- ^node_modules/(.*/)?

@@ -2,7 +2,7 @@
 #I recommend to set the environnement variables $NACL_EXE_STDOUT & $NACL_EXE_STDERR to 'dev://postmessage'
 
 cmake_minimum_required(VERSION 2.8.4)
-set(PNACL_PROGRAMS copy unecm)
+set(PNACL_PROGRAMS copy unecm ecmify)
 project(inputzone)
 
 include( CMakeForceCompiler )

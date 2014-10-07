@@ -12,11 +12,11 @@
 </head>
 <body  unresolved fullbleed>
 <iz-app fit>
-    <iz-converter id="unecm" title="UNECM" subtitle="ECM TOOLS FOR THE WEB" outputHeader="*.bin,*.iso" inputHeader="*.ecm" credits="Copyright (C) 2002 Neill Corlett" inputExt=".ecm" active>
-        <embed width=0 height=0 src="bin/unecm.pexe.nmf" type="application/x-pnacl" />
+    <iz-converter id="ecmify" title="ECMify" subtitle="ECM TOOLS FOR THE WEB" outputHeader="*.ecm" inputHeader="*.iso,*.bin" credits="Copyright (C) 2002 Neill Corlett" inputExt=".iso,.bin" active>
+        <embed width=0 height=0 src="bin/ecmify.pexe.nmf" type="application/x-pnacl" />
     </iz-converter>
-    <iz-converter id="ecmify" title="ECMify" subtitle="ECM TOOLS FOR THE WEB" outputHeader="*.ecm" inputHeader="*.iso,*.bin" credits="Copyright (C) 2002 Neill Corlett" inputExt=".iso,.bin">
-        <embed width=0 height=0 src="../ecmify/bin/ecmify.pexe.nmf" type="application/x-pnacl" />
+    <iz-converter id="unecm" title="UNECM" subtitle="ECM TOOLS FOR THE WEB" outputHeader="*.bin,*.iso" inputHeader="*.ecm" credits="Copyright (C) 2002 Neill Corlett" inputExt=".ecm">
+        <embed width=0 height=0 src="../unecm/bin/unecm.pexe.nmf" type="application/x-pnacl" />
     </iz-converter>
 </iz-app>
 <script type="application/dart">export 'package:polymer/init.dart';</script>

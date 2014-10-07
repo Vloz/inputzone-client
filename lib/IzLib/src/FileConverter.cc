@@ -2,35 +2,24 @@
 #include "FileConverter.h"
 
 FileConverter::FileConverter( IzInstanceBase *instance,const pp::Var& var_message, std::string converterName)
-        :  instance_(instance), converterName_(converterName) , isCancelling_(false), currentProgress_(0.0),input_(NULL),inputCursor(0)
+        :  instance_(instance), converterName_(converterName) , isCancelling_(false), currentProgress_(0.0)
 {
     id_ =  instance_->getMessageId(var_message);
     url_ = instance_->getMessageValue("url", var_message);
     filename_ = instance_->getMessageValue("filename", var_message);
     size_ = strtoull(instance_->getMessageValue("size", var_message).c_str(),NULL,0);
-    urlLoader_ = new pp::URLLoader(instance_);
-    urlRequestInfo_ = new pp::URLRequestInfo(instance_);
-
-    urlRequestInfo_->SetURL(url_);
-    urlRequestInfo_->SetMethod("GET");
-    //   urlRequestInfo_->SetRecordDownloadProgress(true);
-
     thread_ = new pp::SimpleThread(instance);
     callbackFactory_ = new pp::CompletionCallbackFactory<FileConverter>(this);
     fileSystem_ = new pp::FileSystem(instance,PP_FILESYSTEMTYPE_LOCALTEMPORARY);
-    buffer_ = new char[BUFFER_SIZE];
     thread_->Start();
     thread_->message_loop().PostWork(callbackFactory_->NewCallback(&FileConverter::Start));
+    thread_->message_loop().PostWork(callbackFactory_->NewCallback(&FileConverter::EndOfThread));
 }
 
 FileConverter::~FileConverter() {
     delete thread_;
     delete  callbackFactory_;
-    fileSystem_->detach();
     delete fileSystem_;
-    delete urlLoader_;
-    delete urlRequestInfo_;
-    delete[] buffer_;
     delete inputDownloader_;
 }
 
@@ -43,115 +32,17 @@ void FileConverter::Start(int32_t){
         return;
     }
 
-    urlLoader_->Open(*urlRequestInfo_, pp::BlockUntilComplete());
-
     pp::FileRef(*fileSystem_, GetInputDirectoryPath().c_str()).MakeDirectory(PP_MAKEDIRECTORYFLAG_WITH_ANCESTORS, pp::BlockUntilComplete());
     pp::FileRef(*fileSystem_, GetOutputDirectoryPath().c_str()).MakeDirectory(PP_MAKEDIRECTORYFLAG_WITH_ANCESTORS, pp::BlockUntilComplete());
-    inputDownloadDonecc_ =callbackFactory_->NewCallback(&FileConverter::InputDownloadDone);
-    inputDownloader_ = new InputDownloader(url_,GetInputDirectoryPath()+filename_,size_,fileSystem_,*this,inputDownloadDonecc_);
+    inputDownloader_ = new InputDownloader(url_,GetInputDirectoryPath()+filename_,size_,fileSystem_,*this);
     inputDownloader_->Start();
+    InputDownloadDone();
 }
 
-void FileConverter::InputDownloadDone(int32_t result) {
-    if(result==PP_OK)
-    {
-        UpdateTaskStatus(CONVERTING);
-        UpdateTaskDetails("DONE!!");
-    }
-    else
-        Error("GOT ERROR:",result);
-
-
-}
-/*
-
-void FileConverter::CheckForTimeout(int32_t){
-    while (status_ == STARTING){
-        if(timeoutprevious_==timeout_){
-            instance_->DebugMessage("TIMEOUT!!!");
-            delete thread_;
-            delete  urlLoader_;
-            thread_ = new pp::SimpleThread(instance_);
-            thread_->Start();
-            thread_->message_loop().PostWork(callbackFactory_->NewCallback(&FileConverter::Start));
-        }
-        else
-            timeoutprevious_=timeout_;
-
-        struct timespec tim, tim2;
-        tim.tv_sec  = 2;
-        tim.tv_nsec = 500000000L;
-        nanosleep(&tim , &tim2);
-    }
-}
-
-
-void FileConverter::EndOfThread(int32_t){
-        instance_->DebugMessage("Task id:"+std::to_string(id_)+"=> TERMINATED!");
-}
-
-void FileConverter::Start(int32_t){
-    int fs_r= fileSystem_->Open(1024 * 1024 * 1024 * 50, pp::BlockUntilComplete());
-    mountPoint_="/temporary";
-    if(fs_r!=PP_OK){
-        Error("Cannot create the internal file system:",fs_r);
+void FileConverter::InputDownloadDone() {
+    if(status_!=CONVERTING)
         return;
-    }
-    urlLoader_ = new pp::URLLoader(instance_);
-    urlLoader_->Open(*urlRequestInfo_, pp::BlockUntilComplete());
-
-    pp::FileRef(*fileSystem_, GetInputDirectoryPath().c_str()).MakeDirectory(PP_MAKEDIRECTORYFLAG_WITH_ANCESTORS, pp::BlockUntilComplete());
-    pp::FileRef(*fileSystem_, GetOutputDirectoryPath().c_str()).MakeDirectory(PP_MAKEDIRECTORYFLAG_WITH_ANCESTORS, pp::BlockUntilComplete());
-    pp::FileRef ref(*fileSystem_,std::string(GetInputDirectoryPath()+filename_).c_str());
-    pp::FileIO file(instance_);
-    int32_t open_result = file.Open(ref,PP_FILEOPENFLAG_WRITE | PP_FILEOPENFLAG_CREATE | PP_FILEOPENFLAG_TRUNCATE, pp::BlockUntilComplete());
-    if (open_result != PP_OK) {
-        Error("Couldnt create the input file!", open_result);
-        return;
-    }
-
-    UpdateTaskStatus(STARTING);
-    uint64_t downloaded = 0, file_offset = 0;
-    int32_t result = PP_OK;
-    timeout_=clock();
-    timeoutThread_->message_loop().PostWork(callbackFactory_->NewCallback(&FileConverter::CheckForTimeout));
-    do {
-        result = urlLoader_->ReadResponseBody(buffer_, BUFFER_SIZE, pp::BlockUntilComplete());
-        downloaded+=result;
-        int64_t buffer_offset = 0;
-        int32_t bytes_written = 0;
-        if(result>0)
-        do {
-            bytes_written = file.Write(file_offset,
-                    buffer_ + buffer_offset,
-                    result,
-                    pp::BlockUntilComplete());
-            if (bytes_written > 0) {
-                buffer_offset += bytes_written;
-            } else {
-                Error("File write failed");
-                return;
-            }
-            timeout_=clock();
-        } while (bytes_written < static_cast<int64_t>(result));
-        file_offset+=bytes_written;
-        UpdatePreProgress((int8_t)((float)file_offset/(float)size_*100));
-        if(isCancelling_){
-            urlLoader_->Close();
-            file.Close();
-            DeleteTaskDirectory();
-            return;
-        }
-    } while (result > 0);
-    int32_t flush_result = file.Flush(pp::BlockUntilComplete());
-    if (flush_result != PP_OK) {
-        Error("File fail to flush");
-        return;
-    }
-    printf("Finished:%llu/%llu",size_, downloaded);
-    instance_->DebugMessage("Save success");
-    file.Close();
-    urlLoader_->Close();
+    UpdatePreProgress(0);
 
     nacl_io_init_ppapi(instance_->pp_instance(), pp::Module::Get()->get_browser_interface());
     FILE* input = NULL;
@@ -161,15 +52,15 @@ void FileConverter::Start(int32_t){
             "html5fs",
             0,
             "type=TEMPORARY,expected_size=53687091200");
-
     std::string fullInputPath = mountPoint_+ GetInputDirectoryPath()+filename_;
     input = fopen(fullInputPath.c_str(), "r");
-    clock_t begin, end;
+    clock_t begin, end; //to measure conversion time
     begin = clock();
-    UpdateTaskStatus(CONVERTING);
     int32_t conversionResult = Convert(id_,input,size_, mountPoint_+ GetOutputDirectoryPath(), GetBaseName(filename_), GetExtension(filename_));
     fclose(input);
     delete input;
+    if(status_==CANCELED)
+        return;
 
     if( conversionResult == PP_OK) {
         end = clock();
@@ -178,17 +69,18 @@ void FileConverter::Start(int32_t){
         DeleteInputDirectory();
 
         pp::FileRef refdir(*fileSystem_, GetOutputDirectoryPath().c_str());
-        // Pass ref along to keep it alive.
-        refdir.ReadDirectoryEntries(callbackFactory_->NewCallbackWithOutput(
-                &FileConverter::SendOutputURL, refdir));
+        refdir.ReadDirectoryEntries(callbackFactory_->NewCallbackWithOutput(&FileConverter::SendOutputURL, refdir));
     }
     else{
         DeleteTaskDirectory();
     }
 }
 
-*/
 
+
+void FileConverter::EndOfThread(int32_t){
+    instance_->DebugMessage("Task id:"+std::to_string(id_)+"===> TERMINATED!");
+}
 
 void FileConverter::SendOutputURL(int32_t result, const std::vector<pp::DirectoryEntry> entries, pp::FileRef /* unused_ref */) {
     if (result != PP_OK) {
@@ -253,7 +145,14 @@ void FileConverter::Error(std::string message) {
 }
 
 void FileConverter::Error(std::string text, int32_t result) {
-    Error(text+std::to_string(result));
+    switch (result){
+        case PP_ERROR_NOQUOTA:
+            Error(text+"Not enough space available!");
+            break;
+        default:
+            Error(text+std::to_string(result));
+    }
+    DeleteTaskDirectory();
 }
 
 void FileConverter::UpdateTaskDetails(std::string text) {
@@ -274,15 +173,25 @@ void FileConverter::DeleteInputDirectory() {
     pp::FileRef inputdir(*fileSystem_, GetInputDirectoryPath().c_str());
     inputdir.ReadDirectoryEntries(callbackFactory_->NewCallbackWithOutput(
             &FileConverter::DeleteDirectory, inputdir));
+    pp::FileRef(*fileSystem_, GetMainDirectoryPath().c_str()).Delete(pp::BlockUntilComplete()); //<<== useless line, return -2, but seems to wake up the filesystem...
 }
 
 
 void FileConverter::DeleteDirectory(int32_t result, const std::vector<pp::DirectoryEntry> entries, pp::FileRef directory) {
     if (result == PP_OK) {
-        for (auto &entry : entries) // access by reference to avoid copying
-            entry.file_ref().Delete(pp::BlockUntilComplete());
-        directory.Delete(pp::BlockUntilComplete());
+        int r = 0;
+        for (auto &entry : entries){
+            r=entry.file_ref().Delete(pp::BlockUntilComplete());
+            if(r!=PP_OK)
+                instance_->DebugErrorMessage("Could not delete the file "+entry.file_ref().GetName().AsString()+" : ", r);
+        }
+
+        r= directory.Delete(pp::BlockUntilComplete());
+        if(r!=PP_OK)
+            instance_->DebugErrorMessage("Could not delete the directory:", r);
     }
+    else
+        instance_->DebugErrorMessage("Could not read into the directory to delete:", result);
 }
 
 void FileConverter::Cancel() {

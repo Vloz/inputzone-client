@@ -17,8 +17,6 @@
 #include "InputDownloader.h"
 
 
-#define BUFFER_SIZE 32000 //32000000
-
 class IzInstanceBase;
 
 class InputDownloader;
@@ -59,14 +57,9 @@ protected:
 private:
 
     pp::FileSystem *fileSystem_;
-    pp::URLLoader *urlLoader_;
-    pp::URLRequestInfo *urlRequestInfo_;
 
     pp::SimpleThread *thread_;
-    pp::SimpleThread *timeoutThread_;
     pp::CompletionCallbackFactory<FileConverter>* callbackFactory_;
-
-
 
 
     uint64_t id_;
@@ -76,15 +69,9 @@ private:
     std::string mountPoint_;
     uint64_t size_;
     float currentProgress_;
-    char* buffer_;
-    FILE* input_;
-    uint64_t inputCursor;
 private:
     STATUSTYPE status_;
     InputDownloader* inputDownloader_;
-    pp::CompletionCallback inputDownloadDonecc_;
-
-
 
     void Start(int32_t);
 
@@ -107,20 +94,16 @@ private:
 
     void DeleteTaskDirectory();
 
-
     std::string GetOutputDirectoryPath();
 
     std::string GetInputDirectoryPath();
-
-    void EndOfThread(int);
 
     void DeleteDirectory(int32_t result, std::vector<pp::DirectoryEntry> const entries, pp::FileRef directory);
 
     void DeleteInputDirectory();
 
-    void CheckForTimeout(int);
+    void InputDownloadDone();
 
-    void InputDownloadDone(int32_t result);
+    void EndOfThread(int32_t);
 
-    void LaunchInputDownload(int32_t fsOpeningResult);
 };

@@ -265,13 +265,14 @@ private:
                     if(isCancelling_)
                     {
                         fclose(out);
+                        UpdateTaskStatus(CANCELED);
                         return -1;
                     }
                 }
             }
         }
         if(fread(sector, 1, 4, in) != 4) goto uneof;
-        fprintf(stderr, "Decoded %ld bytes -> %ld bytes\n", ftell(in), ftell(out));
+        printf( "Decoded %ld bytes -> %ld bytes", ftell(in), ftell(out));
         if(
                 (sector[0] != ((checkedc >>  0) & 0xFF)) ||
                         (sector[1] != ((checkedc >>  8) & 0xFF)) ||
