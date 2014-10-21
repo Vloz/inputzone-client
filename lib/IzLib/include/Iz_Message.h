@@ -34,6 +34,7 @@ std::string getMessageFullId(std::string message);
 uint8_t getMessageType(std::string message);
 std::string getMessageInputFullPath(std::string message);
 std::string getMessageInputDirectoryPath(std::string message);
+std::string getMessageChunksDirectoryPath(std::string message);
 std::string getMessageOutputDirectoryPath(std::string message);
 std::string getMessageDirectoryPath(std::string message);
 std::string getMessageFilename(std::string message);

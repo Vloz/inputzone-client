@@ -279,4 +279,4 @@ target_link_libraries(
         copy Iz_EmLib
 
 )
-set_target_properties(copy PROPERTIES LINK_FLAGS "-g2 -s EXPORTED_FUNCTIONS=\"['_initWorker']\" -s BUILD_AS_WORKER=1")
+set_target_properties(copy PROPERTIES LINK_FLAGS "-g2 -s EXPORTED_FUNCTIONS=\"['_initWorker']\" -s BUILD_AS_WORKER=1 -s MEMFS_APPEND_TO_TYPED_ARRAYS=1")

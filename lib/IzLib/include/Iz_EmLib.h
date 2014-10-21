@@ -26,15 +26,19 @@ void iz_error(std::string error);
 void iz_error(std::string error, int32_t numError);
 void iz_print(std::string message);
 
+FILE* iz_truncateInput(uint64_t spanLength, bool fromStart);
 
 struct TaskProps{
     std::string id;
     std::string startMessage;
     FILE* input;
     uint64_t inputSize;
+    uint32_t inputIndex;
     iz_init_onDone_func init_onDone_func;
     iz_postMessage_func postMessage;
     iz_postFinalMessage_func postFinalMessage;
     std::string mountPoint;
     std::string inputFilename;
+    clock_t convertStart;
+    clock_t convertEnd;
 };

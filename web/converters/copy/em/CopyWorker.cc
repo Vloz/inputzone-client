@@ -18,14 +18,23 @@ void Convert(std::string id,FILE* input, uint64_t inputSize,std::string director
     }
     //setvbuf ( output, NULL , _IOFBF , 32541536 );
 
+    uint64_t lastTruncate = 0;
     unsigned int n = 0;
     do {
         n = fread(buf, sizeof(char), sizeof(buf), input);
         fwrite(buf, sizeof(char), n, output);
         output_offset+=n;
+        lastTruncate+=n;
+        if(lastTruncate>100000000)
+        {
+            input = iz_truncateInput(lastTruncate, true);
+            lastTruncate=0;
+        }
+
         iz_updateProgress((uint8_t)((float)output_offset/(float)inputSize*100));
     }while(n!=0);
 
+    iz_print("fileoutputSize="+std::to_string(output_offset));
     iz_release(output);
 
 }

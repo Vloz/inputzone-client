@@ -36,6 +36,10 @@ std::string getMessageInputDirectoryPath(std::string message){
     return getMessageDirectoryPath(message)+"/input";
 }
 
+std::string getMessageChunksDirectoryPath(std::string message){
+    return getMessageDirectoryPath(message)+"/temp";
+}
+
 std::string getMessageOutputDirectoryPath(std::string message){
     return getMessageDirectoryPath(message)+"/output";
 }
