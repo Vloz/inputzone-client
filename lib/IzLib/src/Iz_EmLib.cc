@@ -2,14 +2,23 @@
 #include <libc/unistd.h>
 #include <libc/dirent.h>
 #include <libcxx/stack>
+#include <libc/assert.h>
 
 #define TRUNCBUFSIZE 5048576 //Buffer size used for the chunks of the truncation
+#define DOWNLOADCHUNKSIZE 471859200
 
 
 TaskProps _taskProps;
 
 void postMessage(iz_message message){
     _taskProps.postMessage((char*)message.c_str(), message.length());
+}
+
+extern "C"{
+
+void updateDownloadProgress(int percent){
+    iz_updatePreProgress((uint8_t)percent);
+}
 }
 
 std::string getFilePathInDirectory(std::string directoryPath){
@@ -29,32 +38,9 @@ std::string getFilePathInDirectory(std::string directoryPath){
     return "";
 }
 
-void onDownloadInputFinished(unsigned handle, void* args, const char* fullpath){
-    EM_ASM_ARGS({
-        Module.print('Download finished:'+Pointer_stringify($0));
-    },fullpath);
-    _taskProps.input = fopen(fullpath,"rb+");
-    if(_taskProps.input==NULL)
-    {
-        iz_error("Couldn't create input file...");
-        return;
-    }
-    postMessage(statusMsg(_taskProps.id,CONVERTING));
-    _taskProps.convertStart = clock();
-    (*_taskProps.init_onDone_func)(_taskProps.id,_taskProps.input,_taskProps.inputSize,_taskProps.mountPoint+ getMessageOutputDirectoryPath(_taskProps.startMessage)+"/", getBaseName(_taskProps.inputFilename),getExtension(_taskProps.inputFilename));
-}
 
-void onDownloadInputError(unsigned, void* err, int){
 
-    EM_ASM_ARGS({
-        Module.print("Error during download:"+Pointer_stringify($0));
-    },(char*)err);
-}
 
-void onDownloadInputProgress(unsigned, void*, int progress ){
-
-    iz_updatePreProgress((uint8_t)progress);
-}
 
 void iz_release(FILE* output){
     fclose(_taskProps.input);
@@ -97,8 +83,48 @@ void iz_init(char *data, int size,iz_init_onDone_func converterCallback,iz_postM
             (_taskProps.mountPoint+ getMessageDirectoryPath(data)).c_str(),(_taskProps.mountPoint+ getMessageInputDirectoryPath(data)).c_str(),_taskProps.mountPoint.c_str(),
             (_taskProps.mountPoint+ getMessageOutputDirectoryPath(data)).c_str(),(_taskProps.mountPoint+ getMessageChunksDirectoryPath(data)).c_str()
     );
-    emscripten_async_wget2(getMessageValue("url", data).c_str(),(_taskProps.mountPoint+ getMessageInputDirectoryPath(_taskProps.startMessage)+std::to_string(_taskProps.inputIndex)).c_str(),"GET", "", (void*) getMessageShortId(data),
-            onDownloadInputFinished, onDownloadInputError, onDownloadInputProgress);
+
+    EM_ASM_ARGS(
+    {
+        var chunkSize = $3;
+        var lastpart = $2 % chunkSize;
+        var i;
+        var stream = FS.open(Pointer_stringify($1), 'w');
+        progress = Module.cwrap('updateDownloadProgress', 'void', ['number']);
+        for(i = 0; i<Math.floor($2 / chunkSize); i++){
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', Pointer_stringify($0), false);
+            xhr.setRequestHeader('Range', 'bytes='+i*chunkSize+'-'+((i+1)*chunkSize-1));
+            xhr.responseType = 'arraybuffer';
+            xhr.send(null);
+            FS.write(stream, new Uint8Array(xhr.response), 0, xhr.response.byteLength );
+
+            progress(((i+1)*chunkSize-1)/$2*100);
+        }
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', Pointer_stringify($0), false);
+        xhr.setRequestHeader('Range', 'bytes='+i*chunkSize+'-'+(i*chunkSize+lastpart));
+        xhr.responseType = 'arraybuffer';
+        xhr.send(null);
+
+        FS.write(stream, new Uint8Array(xhr.response), 0, xhr.response.byteLength );
+        FS.close(stream);
+        progress(100);
+    },getMessageValue("url", data).c_str(),(_taskProps.mountPoint+ getMessageInputDirectoryPath(_taskProps.startMessage)+std::to_string(_taskProps.inputIndex)).c_str(),(unsigned long)_taskProps.inputSize, (unsigned long)DOWNLOADCHUNKSIZE);
+
+
+    _taskProps.input = fopen((_taskProps.mountPoint+ getMessageInputDirectoryPath(_taskProps.startMessage)+std::to_string(_taskProps.inputIndex)).c_str(),"rb+");
+    if(_taskProps.input==NULL)
+    {
+        iz_error("Couldn't create input file...");
+        return;
+    }
+    postMessage(statusMsg(_taskProps.id,CONVERTING));
+    _taskProps.convertStart = clock();
+    iz_updatePreProgress((uint8_t)0);
+    (*_taskProps.init_onDone_func)(_taskProps.id,_taskProps.input,_taskProps.inputSize,_taskProps.mountPoint+ getMessageOutputDirectoryPath(_taskProps.startMessage)+"/",
+            getBaseName(_taskProps.inputFilename),getExtension(_taskProps.inputFilename));
 
 }
 

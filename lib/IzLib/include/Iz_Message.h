@@ -25,7 +25,8 @@ enum STATUSTYPE{
     COMPLETING=3,
     COMPLETED=4,
     ERRORED=5,
-    CANCELING=6
+    CANCELING=6,
+    OPTIMIZINGRAM=7
 };
 
 std::string getMessageValue(std::string key, std::string message);
