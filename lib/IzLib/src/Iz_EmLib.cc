@@ -5,7 +5,7 @@
 #include <libc/assert.h>
 
 #define TRUNCBUFSIZE 5048576 //Buffer size used for the chunks of the truncation
-#define DOWNLOADCHUNKSIZE 471859200
+#define DOWNLOADCHUNKSIZE 104857600 //471859200
 
 
 TaskProps _taskProps;

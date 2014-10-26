@@ -2,6 +2,9 @@ import 'package:polymer/polymer.dart';
 import 'dart:html';
 import 'dart:js';
 import 'inputzone.dart';
+import 'iz_app.dart';
+
+
 
 @CustomTag('iz-converter')
 class IzConverter extends PolymerElement {
@@ -13,26 +16,82 @@ class IzConverter extends PolymerElement {
   @published String inputHeader="";
   @published String outputHeader="";
   @published String credits="";
+  @published String pnaclbin="";
+  @published String emscrbin="";
+  @observable bool initialized = false;
+  @observable var runtime = RUNTIMETYPE.EMSCR;
+  
+  IzApp app;
   
   EmbedElement embed;
-  JsObject naclproxy;
+  JsObject pnaclProxy;
   
-  ObservableList<FileTask> tasks = new ObservableList<FileTask>();
+  Worker readyWorker;
+  
+  ObservableMap<int,FileTask> tasks = new ObservableMap<int,FileTask>();
 
   
   IzConverter.created() : super.created(){ 
-    embed= this.querySelector("embed");
-    embed.onLoad.listen((_){
-          embed.on['message'].listen((s){
-            print("new message:"+(s as MessageEvent).data.toString());
-            var msg = new TaskMessage((s as MessageEvent).data.toString());
-            if(msg.id!='0')
-              handleTaskMessage(msg);
-          });
-          naclproxy = new JsObject.fromBrowserObject(embed); 
-        });
+    app = this.parent as IzApp;
+    if(this.attributes.containsKey('active'))
+      initConverter();
+//    embed= this.querySelector("embed");
+//    embed.onLoad.listen((_){
+//          embed.on['message'].listen((s){
+//            print("new message:"+(s as MessageEvent).data.toString());
+//            var msg = new TaskMessage((s as MessageEvent).data.toString());
+//            if(msg.id!='0')
+//              handleTaskMessage(msg);
+//          });
+//          naclproxy = new JsObject.fromBrowserObject(embed); 
+//        });
   }
   
+  void ready(){
+//    var data = [];
+//    data = UTF8.encode("lol");
+//        print(data);
+//        var foo2 = [];
+//        data.forEach((e)=>foo2.add(e));
+//    
+//     print(data.runtimeType.toString());
+//     print([108, 111, 108].runtimeType.toString());
+//     
+//     List<int> foo = [108, 111, 108];
+//     print(foo.runtimeType.toString());
+//    w.postMessage(new workerMessage("workerReady",42,data));
+  }
+  
+  void initConverter(){
+    //window.navigator.mimeTypes.forEach((m)=>print(m.type));
+    //print(); 
+    if(!initialized && readyWorker==null && embed == null){
+      if(app.runtime == RUNTIMETYPE.EMSCR){
+        readyWorker = new Worker(emscrbin);
+              readyWorker.onMessage.listen((MessageEvent e){
+                initialized=true;
+                readyWorker.terminate();
+              });
+              //readyWorker.postMessage(new WorkerPostMessage("workerReady",0,[])); 
+              readyWorker.postMessage('{funcName:"workerReady" }');  
+      } 
+      else{
+        embed= new EmbedElement()..type="application/x-pnacl"..src=pnaclbin..width='600'..height='100'..id='pnacl'..onLoad.listen((_){
+          initialized=true;
+              embed.on['message'].listen((s){
+                print("new message:"+(s as MessageEvent).data.toString());
+                var msg = new TaskMessage.FromNACLMessage((s as MessageEvent).data.toString());
+                if(msg.id!=0){
+                  tasks[msg.id].handleTaskMessage(msg);
+                }
+              });
+              pnaclProxy = new JsObject.fromBrowserObject(embed); 
+            });
+        this.shadowRoot.children.add(embed);
+         }
+    }
+   
+  }
   
   void clickZone(){
     InputElement input = new InputElement(type:'file')
@@ -55,45 +114,36 @@ class IzConverter extends PolymerElement {
   
   void newInput(File file){
     var url = Url.createObjectUrl(file);
-    var task = new FileTask(file.name);
+    FileTask task;
+    if(app.runtime == RUNTIMETYPE.PNACL){
+      task = new PNaclTask(file.name, url, file.size, pnaclProxy);
+      task.start();
+    }else{
+      task = new EmscrTask(file.name, url, file.size, new Worker(emscrbin));
+      task.start();
+    }
     addTask(task);
 
-    naclproxy.callMethod('postMessage', ['type\n'+MESSAGETYPE.START.toString()+'\nid\n'+task.id+'\nurl\n'+url+'\nfilename\n'+file.name+'\nsize\n'+file.size.toString()]); 
   }
   
-  void handleTaskMessage(TaskMessage message){
-    FileTask targetTask = tasks.firstWhere((o)=>o.id == message.id);
-    switch(message.messagetype){
-      case MESSAGETYPE.PROGRESS:
-        targetTask.updateProgress(message.body);
-        break;
-      case MESSAGETYPE.PREPROGRESS:
-        targetTask.updateProgress(message.body,true);
-        break;
-      case MESSAGETYPE.STATUS:
-        targetTask.updateStatus(message.body);
-        break;
-      case MESSAGETYPE.OUTPUTURL:
-        targetTask.output_file_url = 'filesystem:http://'+window.location.host+message.body;
-        break;
-      case MESSAGETYPE.DETAILS:
-        targetTask.details = message.body;
-        break;
-    }
-    
-  }
+  
   
   
   void addTask(FileTask input){
-    tasks.add(input);
+    tasks[input.id] = input;
   }
   
   void removeTask(Event e, var details, Node target){
-    tasks.removeWhere((f)=> f.id == int.parse(details));
+    tasks.remove(tasks[int.parse(details)]);
   }
   
   void cancelTask(Event e, var details, Node target){
-    naclproxy.callMethod('postMessage', ['type\n'+MESSAGETYPE.CANCEL.toString()+'\nid\n'+details]); 
+    pnaclProxy.callMethod('postMessage', ['type\n'+MESSAGETYPE.CANCEL.toString()+'\nid\n'+details]); 
   }
   
+  
+
+  
 }
+
+

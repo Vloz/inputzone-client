@@ -1,7 +1,6 @@
 
 #include <Iz_Em_Instance.h>
 #include <Iz_Message.h>
-#include <libc/assert.h>
 
 
 

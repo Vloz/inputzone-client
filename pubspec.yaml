@@ -8,4 +8,4 @@ transformers:
   - polymer:
       entry_points:      
         - web/ecm.html
-        - web/converters/copy/index.html
+        - web/copy.html

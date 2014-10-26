@@ -25,11 +25,11 @@ void Convert(std::string id,FILE* input, uint64_t inputSize,std::string director
         fwrite(buf, sizeof(char), n, output);
         output_offset+=n;
         lastTruncate+=n;
-        if(lastTruncate>100000000)
+/*        if(lastTruncate>100000000)
         {
             input = iz_truncateInput(lastTruncate, true);
             lastTruncate=0;
-        }
+        }*/
 
         iz_updateProgress((uint8_t)((float)output_offset/(float)inputSize*100));
     }while(n!=0);
@@ -46,5 +46,13 @@ void initWorker(char *data, int size){
         Module.print(Pointer_stringify($0));
     },"initing");
     iz_init(data, size, Convert,emscripten_worker_respond_provisionally,emscripten_worker_respond );
+}
+
+void workerReady(char *data, int size){
+/*    std::string s = data;
+    iz_print(s);
+    iz_print(std::to_string(size));
+    iz_print("Ready!!!");*/
+    //emscripten_worker_respond("lol",3);
 }
 }

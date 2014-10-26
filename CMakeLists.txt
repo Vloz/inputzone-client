@@ -262,7 +262,7 @@ include_directories( lib/IzLib/include )
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/web/lib")
 add_executable(EmInstance lib/IzLib/src/Iz_Em_Instance.cc lib/IzLib/src/Iz_Message.cc)
-set_target_properties(EmInstance PROPERTIES LINK_FLAGS "-g2 -s EXPORTED_FUNCTIONS=\"['_main','_ReceiveMessage','_initConverter']\" -s NO_EXIT_RUNTIME=1 -s DISABLE_EXCEPTION_CATCHING=0")
+set_target_properties(EmInstance PROPERTIES LINK_FLAGS "-Oz -s EXPORTED_FUNCTIONS=\"['_main','_ReceiveMessage','_initConverter']\" -s NO_EXIT_RUNTIME=1 -s DISABLE_EXCEPTION_CATCHING=0")
 
 
 add_library(
@@ -279,4 +279,4 @@ target_link_libraries(
         copy Iz_EmLib
 
 )
-set_target_properties(copy PROPERTIES LINK_FLAGS "-g2 -s EXPORTED_FUNCTIONS=\"['_initWorker','_updateDownloadProgress']\" -s BUILD_AS_WORKER=1 -s MEMFS_APPEND_TO_TYPED_ARRAYS=1 -s TOTAL_MEMORY=157286400")
+set_target_properties(copy PROPERTIES LINK_FLAGS "-g2 -s EXPORTED_FUNCTIONS=\"['_initWorker','_updateDownloadProgress','_workerReady']\" -s BUILD_AS_WORKER=1 -s MEMFS_APPEND_TO_TYPED_ARRAYS=1 -s TOTAL_MEMORY=167772160")
