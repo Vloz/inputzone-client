@@ -7,6 +7,8 @@ import 'dart:convert';
 
 part 'FileTask.dart';
 
+BROWSER currentBrowser = BROWSER.UNKNOWN;
+
 
 class MESSAGETYPE {
   final _value;
@@ -56,4 +58,21 @@ class RUNTIMETYPE {
   
 
   static get values => [EMSCR,PNACL];
+}
+
+
+class BROWSER {
+  final _value;
+  const BROWSER._internal(this._value);
+  toString() => '$_value';
+
+  static const UNKNOWN = const BROWSER._internal(0);
+  static const CHROME = const BROWSER._internal(1);
+  static const FIREFOX = const BROWSER._internal(2);
+  static const OPERA = const BROWSER._internal(3);
+  static const SAFARI = const BROWSER._internal(4);
+  static const INTERNETEXPLORER = const BROWSER._internal(5);
+  
+
+  static get values => [UNKNOWN,CHROME,FIREFOX,OPERA,SAFARI,INTERNETEXPLORER];
 }

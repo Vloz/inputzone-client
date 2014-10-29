@@ -78,6 +78,11 @@ iz_message statusMsg(std::string id, STATUSTYPE status){
     return id+"|"+std::to_string(STATUS)+"|"+std::to_string(status);
 }
 
+iz_message sendOutputUrlMsg(std::string id, std::string url){
+    return id+"|"+std::to_string(OUTPUTURL)+"|"+url;
+}
+
+/*
 std::string getBaseName(std::string filename) {
     if(filename.find_last_of(".") != std::string::npos)
         return filename.substr(0,filename.find_last_of("."));
@@ -89,3 +94,4 @@ std::string getExtension(std::string filename) {
         return filename.substr(filename.find_last_of("."));
     return "";
 }
+*/

@@ -3,6 +3,7 @@ import 'package:paper_elements/paper_tabs.dart';
 import 'package:paper_elements/paper_tab.dart';
 import 'package:core_elements/core_animated_pages.dart';
 import 'package:inputzone/iz_converter.dart';
+import 'package:browser_detect/browser_detect.dart';
 import 'dart:html';
 
 import 'inputzone.dart';
@@ -18,6 +19,7 @@ class IzApp extends PolymerElement {
   
   IzApp.created() : super.created(){ 
     
+    detectBrowser();
     appUrl = Uri.parse(window.location.href); 
     if(appUrl.hasFragment){
       appUrl.fragment.split(";").forEach((f){
@@ -70,4 +72,19 @@ class IzApp extends PolymerElement {
   }
   
   
+  void detectBrowser(){
+    if(browser.isChrome)
+      currentBrowser = BROWSER.CHROME;
+    else if(browser.isFirefox)
+      currentBrowser = BROWSER.FIREFOX;
+    else if(browser.isOpera)
+      currentBrowser = BROWSER.OPERA;
+    else if(browser.isSafari)
+      currentBrowser = BROWSER.SAFARI;
+    else if(browser.isIe)
+      currentBrowser = BROWSER.INTERNETEXPLORER;
+    else
+      currentBrowser = BROWSER.UNKNOWN;
+  }
 }
+

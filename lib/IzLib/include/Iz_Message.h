@@ -29,6 +29,15 @@ enum STATUSTYPE{
     OPTIMIZINGRAM=7
 };
 
+enum BROWSER{
+    UNKNOWNBROWSER=0,
+    CHROME=1,
+    FIREFOX=2,
+    OPERA=3,
+    SAFARI=4,
+    INTERNETEXPLORER=5
+};
+
 std::string getMessageValue(std::string key, std::string message);
 int32_t getMessageShortId(std::string message);
 std::string getMessageFullId(std::string message);
@@ -46,6 +55,7 @@ iz_message progressMsg(std::string id, uint8_t value);
 iz_message preprogressMsg(std::string id, uint8_t value);
 iz_message errorMsg(std::string id,std::string body);
 iz_message errorMsg(std::string id,std::string body, int32_t errornum);
+iz_message sendOutputUrlMsg(std::string id, std::string url);
 
 std::string getBaseName(std::string filename);
 std::string getExtension(std::string filename);

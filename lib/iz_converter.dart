@@ -72,8 +72,7 @@ class IzConverter extends PolymerElement {
                 initialized=true;
                 readyWorker.terminate();
               });
-              //readyWorker.postMessage(new WorkerPostMessage("workerReady",0,[])); 
-              readyWorker.postMessage('{funcName:"workerReady" }');  
+              readyWorker.postMessage(new WorkerPostMessage("workerReady",0,[]));  
       } 
       else{
         embed= new EmbedElement()..type="application/x-pnacl"..src=pnaclbin..width='600'..height='100'..id='pnacl'..onLoad.listen((_){

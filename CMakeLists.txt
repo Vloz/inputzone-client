@@ -268,7 +268,7 @@ set_target_properties(EmInstance PROPERTIES LINK_FLAGS "-Oz -s EXPORTED_FUNCTION
 add_library(
     Iz_EmLib
     STATIC
-    lib/IzLib/src/Iz_EmLib.cc lib/IzLib/src/Iz_Message.cc
+    lib/IzLib/src/Iz_EmLib.cc lib/IzLib/src/Iz_Message.cc lib/IzLib/src/Iz_Em_FileSystem.cc
     lib/IzLib/include/Iz_EmLib.h lib/IzLib/include/Iz_Message.h
 )
 
@@ -279,4 +279,4 @@ target_link_libraries(
         copy Iz_EmLib
 
 )
-set_target_properties(copy PROPERTIES LINK_FLAGS "-g2 -s EXPORTED_FUNCTIONS=\"['_initWorker','_updateDownloadProgress','_workerReady']\" -s BUILD_AS_WORKER=1 -s MEMFS_APPEND_TO_TYPED_ARRAYS=1 -s TOTAL_MEMORY=167772160")
+set_target_properties(copy PROPERTIES LINK_FLAGS "-g2 -s EXPORTED_FUNCTIONS=\"['_initWorker','_updateDownloadProgress','_sendOutputUrl','_workerReady']\" -s BUILD_AS_WORKER=1 -s MEMFS_APPEND_TO_TYPED_ARRAYS=1")

@@ -15,8 +15,11 @@ class IzOutput extends PolymerElement {
   }
   
   void CancelORDownloadClicked(){
-    if(STATUSTYPE.values[context.status_id]== STATUSTYPE.COMPLETED)
-      new AnchorElement(href: context.output_file_url)..attributes.addAll({'Download':''})..click();
+    if(STATUSTYPE.values[context.status_id]== STATUSTYPE.COMPLETED){
+      var a = new AnchorElement(href: context.output_file_url)..attributes.addAll({'Download':context.output_file_name});
+      document.body.children.add(a);
+      a.click();
+    }
     else
       dispatchEvent(new CustomEvent('cancel',detail: this.id ));
   }

@@ -8,6 +8,8 @@ abstract class FileTask extends Observable{
   
   @observable String output_file_url=''; 
   
+  String output_file_name=''; 
+  
   String input_file_url=''; 
   
   @observable int progress = 0;
@@ -43,11 +45,16 @@ abstract class FileTask extends Observable{
           updateStatus(message.body);
           break;
         case MESSAGETYPE.OUTPUTURL:
-          output_file_url = 'filesystem:http://'+window.location.host+message.body;
+          Map m = JSON.decode(message.body);
+          output_file_url = m['url'];
+          output_file_name = m['filename'];
           break;
         case MESSAGETYPE.DETAILS:
           details = message.body;
           break;
+        case MESSAGETYPE.ERROR:
+                  print(message.body);
+                  break;
       }
       
     }
@@ -109,7 +116,8 @@ class EmscrTask extends FileTask{
   }
   
   void start(){
-    _postMessage('type\n'+MESSAGETYPE.START.toString()+'\nid\n'+id.toString()+'\nurl\n'+input_file_url+'\nfilename\n'+filename+'\nsize\n'+inputSize.toString());
+    _postMessage('type\n'+MESSAGETYPE.START.toString()+'\nid\n'+id.toString()+'\nurl\n'+input_file_url
+        +'\nfilename\n'+filename+'\nsize\n'+inputSize.toString()+'\nbrowser\n'+currentBrowser.toString());
   }
   
   void _postMessage(String message,{String funcName:'initWorker'}){   
