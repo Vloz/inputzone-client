@@ -1,7 +1,4 @@
-#include <libcxx/iosfwd>
-#include <libc/bits/alltypes.h>
-#include <libcxx/string>
-#include <libc/stdlib.h>
+
 #include <libcxx/sstream>
 #pragma once
 
@@ -12,10 +9,12 @@ enum MESSAGETYPE{
     CANCEL=2, //--> Cancelation query from ui
     PREPROGRESS=3, //<-- Update preprogress value of the task
     PROGRESS=4, //<--        '' progress ''
-    ERROR=5, //<-- General Module Error
+    ERROR=5, //<-- General Module/App Error
     STATUS=6, //<-- Status of a task see FileConverter.h for types of Status
     OUTPUTURL=7, //<-- Send the output file url to the ui for download
-    DETAILS=8 //<-- Optional details wrote under the task UI
+    DETAILS=8, //<-- Optional details wrote under the task UI
+    ESTIMATESIZE=9 //<-- Send answer to an Estimate size query
+
 };
 
 enum STATUSTYPE{
@@ -26,7 +25,8 @@ enum STATUSTYPE{
     COMPLETED=4,
     ERRORED=5,
     CANCELING=6,
-    OPTIMIZINGRAM=7
+    OPTIMIZINGRAM=7,
+    WAITINGQUOTA=8
 };
 
 enum BROWSER{
@@ -56,6 +56,7 @@ iz_message preprogressMsg(std::string id, uint8_t value);
 iz_message errorMsg(std::string id,std::string body);
 iz_message errorMsg(std::string id,std::string body, int32_t errornum);
 iz_message sendOutputUrlMsg(std::string id, std::string url);
+iz_message detailsMsg(std::string id, std::string details);
 
 std::string getBaseName(std::string filename);
 std::string getExtension(std::string filename);

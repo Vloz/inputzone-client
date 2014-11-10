@@ -150,8 +150,11 @@ void resetcounter(unsigned long total) {
 
 class UnECMConverter : public FileConverter {
 public:
-    UnECMConverter( IzInstanceBase *instance,const pp::Var& var_message) : FileConverter(instance, var_message, "unecm"){
+    UnECMConverter( IzInstanceBase *instance,const pp::Var& var_message) : FileConverter(instance, var_message){
     };
+    static int64_t estimateOutputSize(int64_t inputSize){
+        return 700*1024*1024; //approximate size of a psx iso
+    }
 private:
 
     virtual int32_t Convert(double taskId, FILE* input, uint64_t inputSize, std::string directoryPath, std::string baseName, std::string inputExtension) {

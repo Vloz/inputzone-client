@@ -2,14 +2,16 @@
 <html>
 <head lang="en">
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Copy Tool for the Web</title>
     <link rel="import" href="packages/polymer/polymer.html">
     <script src="packages/browser/dart.js"></script>
     <link rel="stylesheet" href="res/main.css" shim-shadowdom>
+    <link href="/res/icon.png" rel="shortcut icon"/>
     <link rel="import" href="packages/inputzone/iz_app.html">
     <link rel="import" href="packages/inputzone/iz_converter.html">
 </head>
-<body  unresolved fullbleed>
+<body touch-action="auto" unresolved fullbleed>
 <iz-app fit>
     <iz-converter id="copy" title="COPY" pnaclbin="converters/copy/bin/copy.pexe.nmf" emscrbin="converters/copy/bin/copy.js" subtitle="A DEMO CONVERTER">
     </iz-converter>

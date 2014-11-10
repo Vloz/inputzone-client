@@ -1,26 +1,102 @@
 <link rel="import" href="../../packages/polymer/polymer.html">
 
+<link rel="import" href="../../packages/core_elements/core_style.html">
 <link rel="import" href="../../packages/paper_elements/paper_input.html">
 <link rel="import" href="../../packages/paper_elements/paper_tabs.html">
 <link rel="import" href="../../packages/paper_elements/paper_tab.html">
+<link rel="import" href="../../packages/core_elements/core_icons.html">
 <link rel="import" href="../../packages/core_elements/core_toolbar.html">
 <link rel="import" href="../../packages/core_elements/core_header_panel.html">
 <link rel="import" href="../../packages/core_elements/core_animated_pages.html">
+<link rel="import" href="../../packages/core_elements/core_drawer_panel.html">
+<link rel="import" href="../../packages/paper_elements/paper_dialog.html">
+<link rel="import" href="../../packages/paper_elements/paper_button.html">
+<link rel="import" href="../../packages/paper_elements/paper_item.html">
+<link rel="import" href="../../packages/paper_elements/paper_menu_button.html">
+<link rel="import" href="../../packages/paper_elements/paper_icon_button.html">
+<link rel="import" href="../../packages/paper_elements/paper_dialog_transition.html">
 
 <polymer-element name="iz-app">
     <template>
-        <core-header-panel  mode="waterfall-tall" tallclass="medium-tall" fit>
-            <core-toolbar><div>INPUT.ZONE</div>
-                <paper-tabs id="tabs" selected="0"  role="tablist" class="bottom fit">
-                </paper-tabs>
-            </core-toolbar>
-            <div>
-                <core-animated-pages id="pages">
-                    <content select="iz-converter"></content>
-                </core-animated-pages>
-            </div>
-        </core-header-panel>
+        <style>
+            tr:last-child{
+                text-align: right;
+            }
+        </style>
+        <core-drawer-panel id="drawer" narrow="{{narrowedDrawer}}" >
+            <div drawer style="background-color: #323838" layout vertical>
+                <img src="/res/logofull.svg" style="width: 200px;margin: 25px 0 0 0;">
+                <div style="margin:0 25px 0 10px" layout horizontal>
+                    <core-icon style="margin: 10px 0 0 0" icon="search" self-center></core-icon>
+                    <paper-input label="Search..." flex></paper-input>
+                </div>
+                <div style="background-color: #0F1112" flex>
 
+                </div>
+                <div style="opacity: 0.4;font-family: monospace; font-size: 10px;align-items: flex-end;padding: 10px" layout vertical>
+                    <table>
+                        <tr><td>TemporaryFS:</td><td>{{(uiUsedTemp/1024/1024).round()}}Mo/{{(availableTempSpace/1024/1024).round()}}Mo</td></tr>
+                        <tr><td>PersistentFS:</td><td>{{(uiUsedPers/1024/1024).round()}}Mo/{{(availablePersSpace/1024/1024).round()}}Mo</td></tr>
+                    </table>
+                </div>
+            </div>
+            <core-header-panel main mode="waterfall-tall" tallclass="medium-tall" fit>
+                <core-toolbar>
+                    <paper-icon-button icon="menu" role="button" tabindex="0" on-tap="{{expandDrawer}}" hidden?="{{!narrowedDrawer}}"></paper-icon-button>
+                    <div flex></div>
+                    <paper-menu-button halign="right" icon="more-vert">
+                        <paper-item on-click="{{onCompatiblityModeClick}}" icon="{{runtime.toString()=='0'?'check-box-outline':'check-box-outline-blank'}}" hidden?="{{!browserSupportPnacl}}" label="Compatibility mode"></paper-item>
+                        <paper-item on-click="{{onForcePersistentClick}}" icon="{{forcePersistent?'check-box-outline':'check-box-outline-blank'}}" hidden?="{{!browserSupportFS}}" label="Force persistent storage"></paper-item>
+                        <paper-item on-click="{{onPurgeEverythingClick}}" icon="restore" label="Purge everything"></paper-item>
+                        <paper-item on-click="{{onAboutClick}}" icon="info" label="About input.zone..."></paper-item>
+                    </paper-menu-button>
+                    <paper-tabs id="tabs" selected="0"  role="tablist" class="bottom fit">
+                    </paper-tabs>
+                </core-toolbar>
+                <div>
+                    <core-animated-pages id="pages">
+                        <content select="iz-converter"></content>
+                    </core-animated-pages>
+                </div>
+            </core-header-panel>
+        </core-drawer-panel>
+        <paper-dialog id="outOfQuotaDialog" backdrop="{{true}}"  autoCloseDisabled="{{true}}" heading="Out of space!" transition="paper-dialog-transition-center">
+            <p>Running this task may crash the browser, if some others tasks are running,<br/> we recommend you to wait for their completion, delete them, then resume this task.</p>
+            <paper-button label="Wait" affirmative on-click="{{OOQD_Wait}}"></paper-button>
+            <paper-button label="Force" primary affirmative autofocus on-click="{{force}}"></paper-button>
+        </paper-dialog>
+        <paper-dialog id="AboutDialog" backdrop="{{true}}" transition="paper-dialog-transition-center">
+            <div style="width: 550px" horizontal around-justified layout>
+                <img src="//lh5.googleusercontent.com/-Y1EqlKiPz3U/AAAAAAAAAAI/AAAAAAAAAA4/YLwEvX8lXwE/s120-c/photo.jpg" class="fa-kz iGb" style="width: 120px; height: 120px; border-radius: 50%">
+                <div>
+                    <p>Input Zone - 2014 - Version 0.0.1<br>
+                    a@omni.solutions - +33 6 23 72 15 96<br>
+                    55 rue St Laurent - 54700 PONT A MOUSSON <br> France</p>
+                </div>
+            </div>
+        </paper-dialog>
+        <core-style id="paper-input">
+            :host([focused]) .floated-label {
+            color: #fff;
+            }
+
+            .focused-underline,
+            .cursor {
+            background-color: #3b8183;
+            }
+
+
+            :host(.invalid[focused]) .floated-label,
+            :host([focused]) .error-text,
+            :host([focused]) .error-icon {
+            color: #d34336;
+            }
+
+            :host(.invalid) .focused-underline,
+            :host(.invalid) .cursor {
+            background-color: #d34336;
+            }
+        </core-style>
     </template>
     <script type="application/dart" src="iz_app.dart"></script>
 </polymer-element>

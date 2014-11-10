@@ -18,7 +18,8 @@ enum MESSAGETYPE{
     ERROR=5, //<-- General Module Error
     STATUS=6, //<-- Status of a task see FileConverter.h for types of Status
     OUTPUTURL=7, //<-- Send the output file url to the ui for download
-    DETAILS=8 //<-- Optional details wrote under the task UI
+    DETAILS=8, //<-- Optional details wrote under the task UI
+    ESTIMATESIZE=9
 };
 
 
@@ -45,7 +46,9 @@ public:
 
     void UpdateTaskStatut(uint64_t id, int8_t statusType);
 
-    void SendOutputURL(uint64_t id, std::string url);
+    void SendOutputURL(uint64_t id,std::string filename ,std::string url);
+
+    void SendEstimateOutputSize(uint64_t id,uint64_t outputSize);
 };
 
 
@@ -61,17 +64,27 @@ public:
         FreeClear(fileTasks_);
     }
 
+    virtual uint64_t estimateOutputSize(uint64_t inputSize){
+
+    }
+
     virtual void HandleMessage(const pp::Var& var_message){
 
         switch(getMessageType(var_message)){
             case START :
                 fileTasks_.insert(std::pair<uint64_t ,T*>(getMessageId(var_message),new T(this,var_message)));
                 break;
-            case CANCEL:
-            {
-
+            case CANCEL: {
                 uint64_t id = getMessageId(var_message);
                 fileTasks_[id]->Cancel();
+                break;
+            }
+
+            case ESTIMATESIZE: {
+                DebugErrorMessage("Inside!",0);
+                uint64_t inputSize = strtoull(getMessageValue("inputSize", var_message).c_str(), NULL, 0);
+                uint64_t outputSize = T::estimateOutputSize(inputSize);
+                SendEstimateOutputSize(getMessageId(var_message),outputSize);
                 break;
             }
             default:

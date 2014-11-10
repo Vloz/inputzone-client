@@ -1,16 +1,27 @@
 #include <search.h>
 #include "FileConverter.h"
 
-FileConverter::FileConverter( IzInstanceBase *instance,const pp::Var& var_message, std::string converterName)
-        :  instance_(instance), converterName_(converterName) , isCancelling_(false), currentProgress_(0.0)
+FileConverter::FileConverter( IzInstanceBase *instance,const pp::Var& var_message)
+        :  instance_(instance), isCancelling_(false), currentProgress_(0.0)
 {
     id_ =  instance_->getMessageId(var_message);
     url_ = instance_->getMessageValue("url", var_message);
     filename_ = instance_->getMessageValue("filename", var_message);
+    fstype_ = (FSTYPE)std::stoi(instance_->getMessageValue("FS", var_message),NULL,10);
+
     size_ = strtoull(instance_->getMessageValue("size", var_message).c_str(),NULL,0);
     thread_ = new pp::SimpleThread(instance);
     callbackFactory_ = new pp::CompletionCallbackFactory<FileConverter>(this);
-    fileSystem_ = new pp::FileSystem(instance,PP_FILESYSTEMTYPE_LOCALTEMPORARY);
+    switch (fstype_){
+        case HTML5TEMP:
+            fileSystem_ = new pp::FileSystem(instance,PP_FILESYSTEMTYPE_LOCALTEMPORARY);
+            mountPoint_="/temporary";
+            break;
+        default:
+            fileSystem_ = new pp::FileSystem(instance,PP_FILESYSTEMTYPE_LOCALPERSISTENT);
+            mountPoint_="/persistent";
+    }
+
     thread_->Start();
     thread_->message_loop().PostWork(callbackFactory_->NewCallback(&FileConverter::Start));
     thread_->message_loop().PostWork(callbackFactory_->NewCallback(&FileConverter::EndOfThread));
@@ -26,7 +37,6 @@ FileConverter::~FileConverter() {
 void FileConverter::Start(int32_t){
     UpdateTaskStatus(STARTING);
     int fs_r= fileSystem_->Open(1024 * 1024 * 1024 * 50, pp::BlockUntilComplete());
-    mountPoint_="/temporary";
     if(fs_r!=PP_OK){
         Error("Cannot create the internal file system:",fs_r);
         return;
@@ -47,11 +57,14 @@ void FileConverter::InputDownloadDone() {
     nacl_io_init_ppapi(instance_->pp_instance(), pp::Module::Get()->get_browser_interface());
     FILE* input = NULL;
     umount( "/" );
-    mount("",
-            "/temporary",
-            "html5fs",
-            0,
-            "type=TEMPORARY,expected_size=53687091200");
+    switch (fstype_){
+        case HTML5TEMP:
+            mount("","/temporary","html5fs",0,"type=TEMPORARY,expected_size=53687091200");
+            break;
+        default:
+            mount("","/persistent","html5fs",0,"type=PERSISTENT,expected_size=53687091200");
+    }
+
     std::string fullInputPath = mountPoint_+ GetInputDirectoryPath()+filename_;
     input = fopen(fullInputPath.c_str(), "r");
     clock_t begin, end; //to measure conversion time
@@ -87,7 +100,7 @@ void FileConverter::SendOutputURL(int32_t result, const std::vector<pp::Director
         Error("List failed", result);
         return;
     }
-    instance_->SendOutputURL(id_, mountPoint_+GetOutputDirectoryPath()+entries.front().file_ref().GetName().AsString());
+    instance_->SendOutputURL(id_,entries.front().file_ref().GetName().AsString() ,GetOutputDirectoryPath()+entries.front().file_ref().GetName().AsString());
 }
 
 
@@ -106,7 +119,7 @@ void FileConverter::UpdatePreProgress(int8_t percent){
 }
 
 std::string FileConverter::GetMainDirectoryPath(){
-    return "/InputZone/"+converterName_+"/"+std::to_string(id_);
+    return "/InputZone/"+std::to_string(id_);
 }
 
 std::string FileConverter::GetInputDirectoryPath(){

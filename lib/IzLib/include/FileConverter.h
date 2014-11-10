@@ -31,11 +31,17 @@ enum STATUSTYPE{
     CANCELING=6
 };
 
+enum FSTYPE{
+    MEMFS=0,
+    HTML5TEMP=1,
+    HTML5PERS=2,
+};
+
 class FileConverter {
 public:
 
     void Cancel();
-     FileConverter(IzInstanceBase *instance,const pp::Var& var_message,std::string converterName = "NONAME");
+     FileConverter(IzInstanceBase *instance,const pp::Var& var_message);
     ~FileConverter();
     virtual int32_t Convert(double taskId, FILE* input,uint64_t inputSize, std::string directoryPath , std::string baseName, std::string inputExtension);
 
@@ -65,10 +71,10 @@ private:
     uint64_t id_;
     std::string url_;
     std::string filename_;
-    std::string converterName_;
     std::string mountPoint_;
     uint64_t size_;
     float currentProgress_;
+    FSTYPE fstype_;
 private:
     STATUSTYPE status_;
     InputDownloader* inputDownloader_;

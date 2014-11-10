@@ -2,8 +2,7 @@ import 'package:polymer/polymer.dart';
 import 'dart:html';
 import 'dart:js';
 import 'inputzone.dart';
-import 'iz_app.dart';
-
+import 'package:paper_elements/paper_toast.dart';
 
 
 @CustomTag('iz-converter')
@@ -20,19 +19,17 @@ class IzConverter extends PolymerElement {
   @published String emscrbin="";
   @observable bool initialized = false;
   @observable var runtime = RUNTIMETYPE.EMSCR;
-  
-  IzApp app;
+ 
   
   EmbedElement embed;
   JsObject pnaclProxy;
   
-  Worker readyWorker;
+  Worker infoWorker;
   
   ObservableMap<int,FileTask> tasks = new ObservableMap<int,FileTask>();
 
   
   IzConverter.created() : super.created(){ 
-    app = this.parent as IzApp;
     if(this.attributes.containsKey('active'))
       initConverter();
 //    embed= this.querySelector("embed");
@@ -65,20 +62,20 @@ class IzConverter extends PolymerElement {
   void initConverter(){
     //window.navigator.mimeTypes.forEach((m)=>print(m.type));
     //print(); 
-    if(!initialized && readyWorker==null && embed == null){
-      if(app.runtime == RUNTIMETYPE.EMSCR){
-        readyWorker = new Worker(emscrbin);
-              readyWorker.onMessage.listen((MessageEvent e){
+    if(!initialized && infoWorker==null && embed == null){
+      if(iz_app.runtime == RUNTIMETYPE.EMSCR){
+        infoWorker = new Worker(emscrbin);
+              infoWorker.onMessage.first.then((MessageEvent e){
                 initialized=true;
-                readyWorker.terminate();
+                infoWorker.onMessage.listen(onEMSCREstimatedOutputSizeReceived);
               });
-              readyWorker.postMessage(new WorkerPostMessage("workerReady",0,[]));  
+              infoWorker.postMessage(new WorkerPostMessage("workerReady",0,[]));  
       } 
       else{
         embed= new EmbedElement()..type="application/x-pnacl"..src=pnaclbin..width='600'..height='100'..id='pnacl'..onLoad.listen((_){
           initialized=true;
               embed.on['message'].listen((s){
-                print("new message:"+(s as MessageEvent).data.toString());
+                //print("new message:"+(s as MessageEvent).data.toString());
                 var msg = new TaskMessage.FromNACLMessage((s as MessageEvent).data.toString());
                 if(msg.id!=0){
                   tasks[msg.id].handleTaskMessage(msg);
@@ -114,19 +111,16 @@ class IzConverter extends PolymerElement {
   void newInput(File file){
     var url = Url.createObjectUrl(file);
     FileTask task;
-    if(app.runtime == RUNTIMETYPE.PNACL){
-      task = new PNaclTask(file.name, url, file.size, pnaclProxy);
-      task.start();
-    }else{
-      task = new EmscrTask(file.name, url, file.size, new Worker(emscrbin));
-      task.start();
-    }
+    if(iz_app.runtime == RUNTIMETYPE.PNACL)
+      task = new PNaclTask(this,file.name, url, file.size, pnaclProxy);
+    else
+      task = new EmscrTask(this,file.name, url, file.size, new Worker(emscrbin));
+
     addTask(task);
+    estimateOutputSize(task);
+      
 
   }
-  
-  
-  
   
   void addTask(FileTask input){
     tasks[input.id] = input;
@@ -136,11 +130,31 @@ class IzConverter extends PolymerElement {
     tasks.remove(tasks[int.parse(details)]);
   }
   
-  void cancelTask(Event e, var details, Node target){
-    pnaclProxy.callMethod('postMessage', ['type\n'+MESSAGETYPE.CANCEL.toString()+'\nid\n'+details]); 
+  void estimateOutputSize(FileTask task){
+    if(iz_app.runtime == RUNTIMETYPE.EMSCR)
+      infoWorker.postMessage(new WorkerPostMessage.fromString("estimateOutputSize",task.id,task.inputSize.toString()));
+    else{
+      pnaclProxy.callMethod('postMessage', ['type\n'+MESSAGETYPE.ESTIMATESIZE.toString()+'\nid\n'+task.id.toString()+'\ninputSize\n'+task.inputSize.toString()]);
+    }
   }
   
+  void onEMSCREstimatedOutputSizeReceived(MessageEvent msgEvent){
+    var wmsg = new WorkerReceivedMessage.fromJSON(msgEvent.data);
+    int id_target = wmsg.callbackId;
+    int size = int.parse(wmsg.message());
+    tasks[id_target].estimatedOutputSize = size;
+    iz_app.querySpaceAndRun(tasks[id_target]);
+  }
   
+  void showCompleteToast(int id){
+    (this.shadowRoot.querySelector('#pt'+id.toString()) as PaperToast).show();
+  }
+  
+  void onPTDownloadClick(Event e, var detail, Node target){
+    print('id'+(e.target as DivElement).id);
+    int id = int.parse((e.target as DivElement).id.substring(2));
+    iz_app.downloadTaskOutput(tasks[id]);
+  }
 
   
 }

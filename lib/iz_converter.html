@@ -1,10 +1,24 @@
 <link rel="import" href="../../packages/polymer/polymer.html">
 <link rel="import" href="../../packages/core_elements/core_animated_pages.html">
+<link rel="import" href="../../packages/paper_elements/paper_toast.html">
+<link rel="import" href="../../packages/core_elements/core_icons.html">
 <link rel="import" href="iz_output.html">
 <link rel="import" href="iz_ellipsis.html">
 <polymer-element name="iz-converter">
     <template layout vertical>
         <style>
+            #bodystack{
+                display: flex;
+                flex-direction: row;
+                align-items: flex-start;
+            }
+
+            @media all and (max-width: 750px) {
+                #bodystack{
+                    flex-direction: column;
+                }
+            }
+
             #bodystack>*{
                 margin: 0 25px;
             }
@@ -17,12 +31,11 @@
         <section hero layout vertical center>
 
 
-                <div id="bodystack" hidden?="{{!initialized}}" layout horizontal start>
-                    <content></content>
+                <div id="bodystack" hidden?="{{!initialized}}">
                     <div>
-                    <h3>1/DROP OR CLICK TO SET YOUR INPUT</h3>
+                    <h3>1/SET YOUR INPUT (CLICK/DROP)</h3>
                         <h4>{{inputHeader}}</h4>
-                        <img style="max-width: 400px" src="/res/drop.svg" on-click="{{clickZone}}" flex/>
+                        <img style="max-width: 360px" src="/res/drop6.svg" on-click="{{clickZone}}" flex/>
 
                     </div>
                     <div style="min-width: 360px; flex: 1" layout vertical>
@@ -30,6 +43,9 @@
                         <h4>{{outputHeader}}</h4>
                             <template repeat="{{key in tasks.keys}}">
                                 <iz-output id="{{key}}" context="{{tasks[key]}}" filename="{{tasks[key].filename}}" hero-id="{{key}}" on-download="{{downloadTask}}" on-cancel="{{cancelTask}}" on-remove="{{removeTask}}"></iz-output>
+                                <paper-toast id="{{'pt'+key.toString()}}" text="{{tasks[key].filename}} => Conversion complete!" duration="10000">
+                                    <div id="{{'dd'+key.toString()}}" style="color: #3b8183;" on-tap="{{onPTDownloadClick}}"><core-icon icon="file-download"></core-icon>DOWNLOAD</div>
+                                </paper-toast>
                             </template>
                     </div>
             </div>
@@ -37,6 +53,8 @@
                 <h3>LOADING<iz-ellipsis></iz-ellipsis></h3>
             </div>
         </section>
+        <section>
+
 
     </template>
     <script type="application/dart" src="iz_converter.dart"></script>

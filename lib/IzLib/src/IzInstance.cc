@@ -6,8 +6,8 @@ IzInstanceBase::IzInstanceBase(PP_Instance instance) : pp::Instance(instance)
 {}
 
 
-void IzInstanceBase::SendOutputURL(uint64_t id, std::string url){
-    PostMessage(pp::Var(std::to_string(id)+"|"+std::to_string(OUTPUTURL)+"|"+url));
+void IzInstanceBase::SendOutputURL(uint64_t id,std::string filename ,std::string url){
+    PostMessage(pp::Var(std::to_string(id)+"|"+std::to_string(OUTPUTURL)+"|{\"filename\":\""+filename+"\",\"url\":\""+url+"\"}"));
 }
 
 void IzInstanceBase::UpdateProgress(uint64_t id, int8_t percent){
@@ -27,6 +27,11 @@ void IzInstanceBase::UpdateTaskStatut(uint64_t id, int8_t statusType){
 void IzInstanceBase::UpdateTaskDetails(uint64_t id, std::string text) {
     PostMessage(pp::Var(std::to_string(id)+"|"+std::to_string(DETAILS)+"|"+text));
 }
+
+void IzInstanceBase::SendEstimateOutputSize(uint64_t id,uint64_t outputSize) {
+    PostMessage(pp::Var(std::to_string(id)+"|"+std::to_string(ESTIMATESIZE)+"|"+std::to_string(outputSize)));
+}
+
 
 
 void IzInstanceBase::DebugErrorMessage(const std::string& message, int32_t result) {

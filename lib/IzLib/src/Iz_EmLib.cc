@@ -1,8 +1,4 @@
 #include <Iz_EmLib.h>
-#include <libc/unistd.h>
-#include <libc/dirent.h>
-#include <libcxx/stack>
-#include <libc/assert.h>
 
 #define TRUNCBUFSIZE 5048576 //Buffer size used for the chunks of the truncation
 #define DOWNLOADCHUNKSIZE 104857600
@@ -21,10 +17,9 @@ void postMessage(iz_message message){
 
 extern "C"{
 
-
 void workerReady(char *data, int size){
     char c[]="Ready";
-    emscripten_worker_respond(c,3);
+    emscripten_worker_respond_provisionally(c,3);
 }
 
 void updateDownloadProgress(int percent){
@@ -32,103 +27,56 @@ void updateDownloadProgress(int percent){
 }
 
 void sendOutputUrl(char* url,char* filename){
-    iz_print("insiiide!");
-
-    iz_print(url);
-
-    iz_print(filename);
     postMessage(sendOutputUrlMsg(_taskProps.id,"{\"url\":\""+std::string(url)+"\",\"filename\":\""+filename+"\"}"));
 }
 
 }
 
-std::string getFileNameInDirectory(std::string directoryPath){
-    DIR           *d;
-    struct dirent *dir;
-    d = opendir(directoryPath.c_str());
-    if (d){
-        while ((dir = readdir(d)) != NULL)
-        {
-            if(strncmp(dir->d_name, "..", 2) && strncmp(dir->d_name, ".", 1))
-            return dir->d_name;
-        }
-
-        closedir(d);
-    }
-
-    return "";
-}
 
 
 
-void iz_release(IZ_FILE output){
-
+void iz_release(IZ_FILE* output){
+    output->_html5_flush();
     postMessage(statusMsg(_taskProps.id, COMPLETING));
+    std::string inputPath = _taskProps.input->fullpath;
     iz_fclose(_taskProps.input);
     _taskProps.convertEnd = clock();
-    iz_print("Conversion done in " + std::to_string((double) (_taskProps.convertStart - _taskProps.convertEnd) / CLOCKS_PER_SEC)+" seconds");
-    iz_remove(_taskProps.input.fullpath.c_str());
+    iz_print("Conversion done in " + std::to_string((double) ( _taskProps.convertEnd - _taskProps.convertStart) / CLOCKS_PER_SEC)+" seconds");
+    iz_remove(inputPath.c_str());
     EM_ASM_ARGS({
-        if($2==1){//If HTML5FS
-            var url ="filesystem:http://localhost:8080/temporary"+Pointer_stringify($0);
-            Module.print("url:"+url);
-            Module.ccall('sendOutputUrl', // name of C function
-                    'void', // return type
-            ['string',"string"], // argument types
-            [url.toString(),Pointer_stringify($1)]);
+        var url;
+        if($2!=0){//If HTML5FS
+            url =Pointer_stringify($0);
         }else{//If MEMFS
             var bytes = FS.readFile(Pointer_stringify($0), { encoding: 'binary' });
             var oMyBlob = new Blob([bytes.buffer], { type: "application/rar" });
-            var url = URL.createObjectURL(oMyBlob);
-
-            Module.print("url:"+url);
-            Module.ccall('sendOutputUrl', // name of C function
-                    'void', // return type
-            ['string',"string"], // argument types
-            [url.toString(),Pointer_stringify($1)]); // arguments
-            //var url = (window.webkitURL ? webkitURL : URL).createObjectURL(oMyBlob);
+            url = URL.createObjectURL(oMyBlob);
         }
-    },(char*)output.fullpath.c_str(),
-            (char*)(output.basename + output.extension).c_str(),(int)currentFsType);
+        Module.ccall('sendOutputUrl', 'void',['string',"string"], [url.toString(),Pointer_stringify($1)]);
+    },(char*)output->fullpath, (char*)(output->basename + output->extension).c_str(), (int)currentFsType);
 
     postMessage(statusMsg(_taskProps.id, COMPLETED));
-   // fclose(output);
-   // remove(getOutputFullPath().c_str());
 }
 
 
 void onDownloadInputFinished(unsigned handle, void* args, const char* fullpath){
-/*    EM_ASM_ARGS({
-        Module.print('Download finished:'+Pointer_stringify($0));
-    },fullpath);
-    _taskProps.input = fopen(fullpath,"r");
+
+    _taskProps.input = iz_fopen((_taskProps.mountPoint+ getMessageInputDirectoryPath(_taskProps.startMessage)+std::to_string(_taskProps.inputIndex)).c_str(),"rb+");
     if(_taskProps.input==NULL)
     {
         iz_error("Couldn't create input file...");
         return;
     }
     postMessage(statusMsg(_taskProps.id,CONVERTING));
-    (*_taskProps.init_onDone_func)(_taskProps.id,_taskProps.input,_taskProps.inputSize,_taskProps.mountPoint+ getMessageOutputDirectoryPath(_taskProps.startMessage)+"/", getBaseName(_taskProps.inputFilename),getExtension(_taskProps.inputFilename));*/
-
-    iz_print("begin");
-/*    _taskProps.input = fopen((_taskProps.mountPoint+ getMessageInputDirectoryPath(_taskProps.startMessage)+std::to_string(_taskProps.inputIndex)).c_str(),"rb+");
-    if(_taskProps.input==NULL)
-    {
-        iz_error("Couldn't create input file...");
-        return;
-    }*/
-    postMessage(statusMsg(_taskProps.id,CONVERTING));
     _taskProps.convertStart = clock();
     iz_updatePreProgress((uint8_t)0);
-    iz_print("end");
-/*    (*_taskProps.init_onDone_func)(_taskProps.id,_taskProps.input,_taskProps.inputSize,_taskProps.mountPoint+ getMessageOutputDirectoryPath(_taskProps.startMessage)+"/",
-            getBaseName(_taskProps.inputFilename),getExtension(_taskProps.inputFilename));*/
+    (*_taskProps.init_onDone_func)(_taskProps.id,_taskProps.input,_taskProps.inputSize,_taskProps.mountPoint+ getMessageOutputDirectoryPath(_taskProps.startMessage)+"/");
 }
 
 void onDownloadInputError(unsigned t, void* err, int size){
 
     EM_ASM_ARGS({
-        Module.print("Error during downinload:"+Pointer_stringify($0));
+        Module.print("Error during download:"+Pointer_stringify($0));
     },(char*)err);
 }
 
@@ -137,7 +85,7 @@ void onDownloadInputProgress(unsigned, void*, int progress ){
     iz_updatePreProgress((uint8_t)progress);
 }
 
-void iz_init(char *data, int size, std::string converterName, iz_init_onDone_func converterCallback,iz_postMessage_func postMessageFunc, iz_postFinalMessage_func postFinalMessageFunc) {
+void iz_init(char *data, int size, iz_init_onDone_func converterCallback,iz_postMessage_func postMessageFunc, iz_postFinalMessage_func postFinalMessageFunc) {
 
     _taskProps.inputIndex =0;
     _taskProps.postMessage = postMessageFunc;
@@ -148,43 +96,70 @@ void iz_init(char *data, int size, std::string converterName, iz_init_onDone_fun
     _taskProps.inputSize = getMessageSize(data);
     _taskProps.init_onDone_func = converterCallback;
     _taskProps.inputFilename = getMessageFilename(data);
+    currentFsType = (FSTYPE)std::stoi( getMessageValue("FS", data),NULL,10);
     currentBrowser = (BROWSER)std::stoi( getMessageValue("browser", data),NULL,10);
     postMessage(statusMsg(_taskProps.id, STARTING));
 
+    int initFS = 0;
     if(currentBrowser== CHROME){
-        _taskProps.mountPoint="/InputZone/"+converterName;
-        currentFsType = HTML5FS;
-        EM_ASM_ARGS({
+        _taskProps.mountPoint="/InputZone";
+        initFS = EM_ASM_INT({
+                try{
                 self.fs_FILES = [];
-                self.fs_cursors=[];
+                //self.fs_cursors=[];
                 self.fs_writers=[];
                 self.fs_filereader = new FileReaderSync();
-                self.fs = webkitRequestFileSystemSync(TEMPORARY, 1024*1024*1024*5 /*1MB*/);
+                switch($5) {
+                    case 1:
+                        self.fs = webkitRequestFileSystemSync(TEMPORARY, 1024*1024*1024*10);
+                    break;
+                    case 2:
+                        self.fs = webkitRequestFileSystemSync(PERSISTENT, 1024*1024*1024*10);
+                    break;
+                 }
                 self.fs.root.getDirectory('/InputZone', {create: true});
                 self.fs.root.getDirectory(Pointer_stringify($2), {create: true});
                 self.fs.root.getDirectory(Pointer_stringify($0), {create: true});
                 self.fs.root.getDirectory(Pointer_stringify($1), {create: true});
                 self.fs.root.getDirectory(Pointer_stringify($3), {create: true});
                 self.fs.root.getDirectory(Pointer_stringify($4), {create: true});
+                } catch (e) {
+                        Module.print(e);
+                        return -1;
+                }
+                return 0;
+
         },
         (_taskProps.mountPoint + getMessageDirectoryPath(data)).c_str(), (_taskProps.mountPoint + getMessageInputDirectoryPath(data)).c_str(), _taskProps.mountPoint.c_str(),
-        (_taskProps.mountPoint + getMessageOutputDirectoryPath(data)).c_str(), (_taskProps.mountPoint + getMessageChunksDirectoryPath(data)).c_str());
+        (_taskProps.mountPoint + getMessageOutputDirectoryPath(data)).c_str(), (_taskProps.mountPoint + getMessageChunksDirectoryPath(data)).c_str(),(int)currentFsType);
 
     }
     else {
-        EM_ASM_ARGS(
+        initFS = EM_ASM_INT(
                 {
-                    FS.mkdir(Pointer_stringify($2));
-                    FS.mount(MEMFS, {}, Pointer_stringify($2));
-                    FS.mkdir(Pointer_stringify($0));
-                    FS.mkdir(Pointer_stringify($1));
-                    FS.mkdir(Pointer_stringify($3));
-                    FS.mkdir(Pointer_stringify($4));
+                    try{
+                        FS.mkdir(Pointer_stringify($2));
+                        FS.mount(MEMFS, {}, Pointer_stringify($2));
+                        FS.mkdir(Pointer_stringify($0));
+                        FS.mkdir(Pointer_stringify($1));
+                        FS.mkdir(Pointer_stringify($3));
+                        FS.mkdir(Pointer_stringify($4));
+                    } catch (e) {
+                        Module.print(e);
+                        return -1;
+                    }
+                    return 0;
                 },
                 (_taskProps.mountPoint + getMessageDirectoryPath(data)).c_str(), (_taskProps.mountPoint + getMessageInputDirectoryPath(data)).c_str(), _taskProps.mountPoint.c_str(),
                 (_taskProps.mountPoint + getMessageOutputDirectoryPath(data)).c_str(), (_taskProps.mountPoint + getMessageChunksDirectoryPath(data)).c_str()
         );
     }
+    if(initFS!=0)
+    {
+        iz_error("Couldn't initiate the internal FileSystem...");
+        return;
+    }
+
     if(currentBrowser == CHROME ){
         unsigned  long chunksize = DOWNLOADCHUNKSIZE;
         EM_ASM_ARGS(
@@ -202,8 +177,6 @@ void iz_init(char *data, int size, std::string converterName, iz_init_onDone_fun
                         xhr.responseType = 'blob';
                         xhr.send(null);
                         writer.write(xhr.response);
-                        //FS.write(stream, new Uint8Array(xhr.response), 0, xhr.response.byteLength );
-
                         progress(((i+1)*chunkSize-1)/$2*100);
                     }
 
@@ -214,13 +187,11 @@ void iz_init(char *data, int size, std::string converterName, iz_init_onDone_fun
                     xhr.send(null);
 
                     writer.write(xhr.response);
-                    //FS.write(stream, new Uint8Array(xhr.response), 0, xhr.response.byteLength );
-                    //FS.close(stream);
                     progress(100);
                 },getMessageValue("url", data).c_str(),(_taskProps.mountPoint+ getMessageInputFullPath(_taskProps.startMessage)).c_str(),(unsigned long)_taskProps.inputSize, chunksize);
 
         _taskProps.input = iz_fopen((_taskProps.mountPoint+ getMessageInputFullPath(_taskProps.startMessage)).c_str(),"rb+");
-        if(!_taskProps.input.isValid)
+        if(_taskProps.input==NULL)
         {
             iz_error("Couldn't create input file...");
             return;
@@ -263,12 +234,12 @@ void iz_init(char *data, int size, std::string converterName, iz_init_onDone_fun
                 },getMessageValue("url", data).c_str(),(_taskProps.mountPoint+ getMessageInputDirectoryPath(_taskProps.startMessage)+std::to_string(_taskProps.inputIndex)).c_str(),(unsigned long)_taskProps.inputSize, chunksize);
 
 
-/*        _taskProps.input = fopen((_taskProps.mountPoint+ getMessageInputDirectoryPath(_taskProps.startMessage)+std::to_string(_taskProps.inputIndex)).c_str(),"rb+");
+        _taskProps.input = iz_fopen((_taskProps.mountPoint+ getMessageInputDirectoryPath(_taskProps.startMessage)+std::to_string(_taskProps.inputIndex)).c_str(),"rb+");
         if(_taskProps.input==NULL)
         {
             iz_error("Couldn't create input file...");
             return;
-        }*/
+        }
         postMessage(statusMsg(_taskProps.id,CONVERTING));
         _taskProps.convertStart = clock();
         iz_updatePreProgress((uint8_t)0);
@@ -278,8 +249,6 @@ void iz_init(char *data, int size, std::string converterName, iz_init_onDone_fun
         emscripten_async_wget2(getMessageValue("url", data).c_str(), (_taskProps.mountPoint+ getMessageInputDirectoryPath(_taskProps.startMessage)+std::to_string(_taskProps.inputIndex)).c_str(),"GET", "", (void*) getMessageShortId(data),
                 onDownloadInputFinished, onDownloadInputError, onDownloadInputProgress);
     }
-
-
 
 }
 
@@ -298,11 +267,16 @@ void iz_updatePreProgress(uint8_t percentage){
 }
 
 void iz_error(std::string error){
-    postMessage(errorMsg(_taskProps.id, error));
+    postMessage(statusMsg(_taskProps.id,ERRORED));
+    iz_details(error);
 }
 
 void iz_error(std::string error, int32_t numError){
     postMessage(errorMsg(_taskProps.id, error,numError));
+}
+
+void iz_details(std::string details){
+    postMessage(detailsMsg(_taskProps.id,details));
 }
 
 void iz_print(std::string message){

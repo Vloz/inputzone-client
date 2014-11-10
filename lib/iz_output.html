@@ -1,7 +1,9 @@
 <link rel="import" href="../../packages/polymer/polymer.html">
 <link rel="import" href="../../packages/paper_elements/paper_progress.html">
 <link rel="import" href="../../packages/paper_elements/paper_icon_button.html">
+<link rel="import" href="../../packages/core_elements/av_icons.html">
 <link rel="import" href="../../packages/core_elements/core_icons.html">
+<link rel="import" href="../../packages/core_elements/core_tooltip.html">
 <link rel="import" href="iz_ellipsis.html">
 
 <polymer-element name="iz-output">
@@ -32,6 +34,22 @@
               width: 360px;}
       }
 
+      core-tooltip.fancy::shadow .core-tooltip {
+          opacity: 0;
+          -webkit-transition: all 300ms cubic-bezier(0,1.92,.99,1.07);
+          transition: all 300ms cubic-bezier(0,1.92,.99,1.07);
+          -webkit-transform: translate3d(0, -10px, 0);
+          transform: translate3d(0, -10px, 0);
+      }
+
+      core-tooltip.fancy:hover::shadow .core-tooltip,
+      core-tooltip.fancy:focus::shadow .core-tooltip {
+          opacity: 1;
+          -webkit-transform: translate3d(0, 0, 0);
+          transform: translate3d(0, 0, 0);
+      }
+
+
       .outputError #status{
           color: #ff7043;
       }
@@ -55,14 +73,22 @@
       .outputCancel paper-progress::shadow #secondaryProgress {
           background-color: #7d7f7d;
       }
+
+      .outputWaitingClick paper-progress::shadow #progressContainer{
+          background-color: #eee;
+      }
   </style>
-  <div class="{{context.status_id == 0 ? 'outputCancel':''}} {{context.status_id == 5 ? 'outputError':''}}" style="background-color:white; display: flex; flex-direction: row; padding: 10px; min-height: 50px;  color: #666; border-radius: 2px; margin: 10px 0 ">
+  <div class="{{context.status_id == 0 ? 'outputCancel':''}} {{context.status_id == 5 ? 'outputError':''}} {{context.status_id == 9 ? 'outputWaitingClick':''}}" style="background-color:white;  padding: 10px 5px; min-height: 50px;  color: #666; border-radius: 2px; margin: 10px 0; " horizontal layout>
+      <core-tooltip large show="{{context.downloaded}}" role="tooltip" class="fancy" style="align-self: center" label="{{context.status_id==0||context.status_id==4||context.status_id==5||context.status_id==8||context.status_id==9?'Please purge once the download is done':''}}" position="top">
+        <paper-icon-button icon="{{context.status_id==0||context.status_id==4||context.status_id==5||context.status_id==8||context.status_id==9?'delete':'cancel'}}" role="button" tabindex="0" aria-label="arrow-back" on-click="{{CancelORDeleteClicked}}"></paper-icon-button>
+      </core-tooltip>
       <div vertical around-justified layout center flex>
           <div style="font-size: 0.75em">{{context.filename}}</div>
           <paper-progress value="{{context.progress}}" secondaryprogress="{{context.preprogress}}" style="width: 100%;"></paper-progress>
-          <div id="status" style="font-size:0.7em;"><b>{{context.status}}<iz-ellipsis hidden?="{{context.status_id==0 || context.status_id==4 ||context.status_id==5}}"></iz-ellipsis></b> {{context.details}}</div>
+          <div id="status" style="font-size:0.7em;">
+              <b>{{context.status}}<iz-ellipsis hidden?="{{context.status_id==0 || context.status_id==4 ||context.status_id==5 || context.status_id==9}}"></iz-ellipsis></b> {{context.details}}</div>
       </div>
-      <paper-icon-button style="align-self: center" icon="{{context.status_id==4?'file-download':'cancel'}}" role="button" tabindex="0" aria-label="arrow-back" disabled?="{{context.status_id==0||context.status_id==5}}" on-click="{{CancelORDownloadClicked}}"></paper-icon-button>
+    <paper-icon-button style="align-self: center" icon="{{context.status_id==9?'av:play-circle-fill':'file-download'}}" role="button" tabindex="0" aria-label="arrow-back" disabled?="{{!(context.status_id==4||context.status_id==9)}}" on-click="{{ResumeORDownloadClicked}}"></paper-icon-button>
   </div>
 
   </template>

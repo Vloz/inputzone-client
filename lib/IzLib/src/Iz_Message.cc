@@ -82,6 +82,10 @@ iz_message sendOutputUrlMsg(std::string id, std::string url){
     return id+"|"+std::to_string(OUTPUTURL)+"|"+url;
 }
 
+iz_message detailsMsg(std::string id, std::string details){
+    return id+"|"+std::to_string(DETAILS)+"|"+details;
+}
+
 /*
 std::string getBaseName(std::string filename) {
     if(filename.find_last_of(".") != std::string::npos)
