@@ -7,6 +7,12 @@
 <polymer-element name="iz-converter">
     <template layout vertical>
         <style>
+            :host{
+                display: block;
+                position: relative !important;
+            }
+
+
             #bodystack{
                 display: flex;
                 flex-direction: row;
@@ -28,7 +34,10 @@
             <h2>{{subtitle}}</h2>
             <h4>{{credits}}</h4>
         </section>
-        <section hero layout vertical center>
+        <section hero>
+            <content select="ins"></content>
+        </section>
+        <section layout vertical center>
 
 
                 <div id="bodystack" hidden?="{{!initialized}}">
@@ -50,11 +59,15 @@
                     </div>
             </div>
             <div hidden?="{{initialized}}">
-                <h3>LOADING<iz-ellipsis></iz-ellipsis></h3>
+                <template if="{{runtime==0 && emscrbin==''}}">
+                    <h3>THIS CONVERTER IS NOT AVAILABLE YET IN COMPATIBILITY MODE.</h3>
+                    <h3>IT ONLY WORKS ON CHROME DESKTOP AND CHROMEOS.</h3>
+                </template>
+                <template if="{{runtime!=0 || emscrbin!=''}}">
+                    <h3>LOADING<iz-ellipsis></iz-ellipsis></h3>
+                </template>
             </div>
         </section>
-        <section>
-
 
     </template>
     <script type="application/dart" src="iz_converter.dart"></script>

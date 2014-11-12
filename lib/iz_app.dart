@@ -1,6 +1,7 @@
 import 'package:polymer/polymer.dart';
 import 'package:paper_elements/paper_dialog.dart';
 import 'package:paper_elements/paper_tabs.dart';
+import 'package:paper_elements/paper_input.dart';
 import 'package:paper_elements/paper_tab.dart';
 import 'package:core_elements/core_drawer_panel.dart';
 import 'package:core_elements/core_animated_pages.dart';
@@ -8,6 +9,7 @@ import 'package:browser_detect/browser_detect.dart';
 import 'dart:html';
 
 
+import 'package:inputzone/iz_register.dart';
 import 'package:inputzone/iz_converter.dart';
 import 'inputzone.dart';
 
@@ -76,10 +78,11 @@ class IzApp extends PolymerElement {
         }
       });
     }
+
+      generateTabs();
   }
   
   void ready(){
-      generateTabs();
       _outOfQuotaDialog = $['outOfQuotaDialog'];
       tasksWaitingOutOfQuotaDialog.listChanges.listen((changes)=>
         changes.forEach((change){
@@ -91,10 +94,18 @@ class IzApp extends PolymerElement {
               _outOfQuotaDialog.toggle();
         })
       );
+      var dsq = document.createElement('script'); 
+      dsq.type = 'text/javascript'; 
+      dsq.async = true;
+      dsq.src = '//' + 'inputzone' + '.disqus.com/embed.js';
+      document.getElementsByTagName('body')[0].append(dsq);
   }
   
   //Create header tabs depending on iz-converter content & select the "active" one
   void generateTabs(){
+    int active =-1;
+    if(options.containsKey('t'))
+      active = int.parse(options['t']);
        if(this.querySelectorAll('iz-converter').length>1){
          this.querySelectorAll('iz-converter').forEach((converter){
            _converters.add(converter);
@@ -102,17 +113,19 @@ class IzApp extends PolymerElement {
            PaperTab tabConverter = new Element.tag('paper-tab');
            tabConverter..attributes['role'] = 'tab'
                ..text = converter.id;
-
            ($['tabs'] as PaperTabs).children.add(tabConverter);
-           if(converter.attributes.keys.contains('active')){
-             int index = ($['tabs'] as PaperTabs).children.indexOf(tabConverter);
+           int index = ($['tabs'] as PaperTabs).children.indexOf(tabConverter);
+           
+           if(index==active ||active==-1 && converter.attributes.keys.contains('active')){
              ($['tabs'] as PaperTabs).selected=index;
              ($['pages'] as CoreAnimatedPages).selected = index;
            }
            tabConverter.onClick.listen((_){
-             int selIndex = ($['tabs'] as PaperTabs).children.indexOf(tabConverter);
-             ($['pages'] as CoreAnimatedPages).selected = selIndex;
-             ((this.shadowRoot.querySelector('content') as ContentElement).getDistributedNodes()[selIndex] as IzConverter).initConverter();
+             int selIndex = ($['tabs'] as PaperTabs).children.indexOf(tabConverter).toInt();
+             print(selIndex);
+             setOption('t',selIndex.toString());
+            // ($['pages'] as CoreAnimatedPages).selected = selIndex;
+            // ((this.shadowRoot.querySelector('content') as ContentElement).getDistributedNodes()[selIndex] as IzConverter).initConverter();
            });
          });
        }
@@ -194,21 +207,42 @@ class IzApp extends PolymerElement {
   }
   
   void onCompatiblityModeClick(){
-    if(options.containsKey('compatibilitymode'))
-        options.remove('compatibilitymode');
-    else
-      options.addAll({'compatibilitymode':''});   
-    String fragments='';
-    if(options.isNotEmpty)
-       fragments= '#';
-    options.forEach((k,v){
-      fragments+=k;
-      if(v!= '')
-        fragments+='='+v;
-      fragments+=';';
-    });
-    window.history.replaceState({}, '',appUrl.path+fragments);
+    toggleOption('compatibilitymode');
     window.location.reload();
+  }
+  
+  void setOption(String key, [String value='']){
+    if(options.containsKey(key))
+            options.remove(key);
+    options.addAll({key:value}); 
+    window.history.replaceState({}, '',appUrl.path+optionsToFragments());
+  }
+  
+  void removeOption(String key){
+      if(options.containsKey(key)){
+        options.remove(key);
+        window.history.replaceState({}, '',appUrl.path+optionsToFragments());
+      }
+    }
+  
+  void toggleOption(String key, [String value='']){
+    if(options.containsKey(key))
+      removeOption(key);
+    else
+      setOption(key, value);   
+  }
+  
+  String optionsToFragments(){
+    String fragments='';
+        if(options.isNotEmpty)
+           fragments= '#';
+        options.forEach((k,v){
+          fragments+=k;
+          if(v!= '')
+            fragments+='='+v;
+          fragments+=';';
+        });
+        return fragments;
   }
   
   void onPurgeEverythingClick(){
@@ -219,6 +253,14 @@ class IzApp extends PolymerElement {
   
   void onAboutClick(){
     ($['AboutDialog'] as PaperDialog).toggle();
+  }
+  
+  void onSearchInput(Event e, var details, Node target){
+    ($['register'] as IzRegister).filter((target as PaperInput).inputValue);
+  }
+  
+  void onLogoClick(){
+    window.location.href = "/";
   }
   
   void expandDrawer(){

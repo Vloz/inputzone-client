@@ -9,6 +9,7 @@ import 'dart:convert';
 import 'dart:async';
 
 part 'FileTask.dart';
+part 'RegisterEntry.dart';
 
 BROWSER currentBrowser = BROWSER.UNKNOWN;
 

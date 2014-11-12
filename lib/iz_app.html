@@ -15,6 +15,7 @@
 <link rel="import" href="../../packages/paper_elements/paper_menu_button.html">
 <link rel="import" href="../../packages/paper_elements/paper_icon_button.html">
 <link rel="import" href="../../packages/paper_elements/paper_dialog_transition.html">
+<link rel="import" href="iz_register.html">
 
 <polymer-element name="iz-app">
     <template>
@@ -22,16 +23,26 @@
             tr:last-child{
                 text-align: right;
             }
+            #disqus{
+                background-color: #2c2f2f;
+                padding: 8px 15px;
+            }
+
+            @media screen and (min-width: 1300px) {
+                #disqus > * {
+                    width: 800px;
+                }
+            }
         </style>
         <core-drawer-panel id="drawer" narrow="{{narrowedDrawer}}" >
             <div drawer style="background-color: #323838" layout vertical>
-                <img src="/res/logofull.svg" style="width: 200px;margin: 25px 0 0 0;">
+                <img on-click="{{onLogoClick}}" src="/res/logofull.svg" style="width: 200px;margin: 25px 0 0 0;">
                 <div style="margin:0 25px 0 10px" layout horizontal>
                     <core-icon style="margin: 10px 0 0 0" icon="search" self-center></core-icon>
-                    <paper-input label="Search..." flex></paper-input>
+                    <paper-input on-input="{{onSearchInput}}" label="Search..." flex></paper-input>
                 </div>
                 <div style="background-color: #0F1112" flex>
-
+                    <iz-register id="register" minify="{{true}}"></iz-register>
                 </div>
                 <div style="opacity: 0.4;font-family: monospace; font-size: 10px;align-items: flex-end;padding: 10px" layout vertical>
                     <table>
@@ -57,6 +68,9 @@
                     <core-animated-pages id="pages">
                         <content select="iz-converter"></content>
                     </core-animated-pages>
+                </div>
+                <div id="disqus" vertical layout center>
+                    <div><content select="div"></content></div>
                 </div>
             </core-header-panel>
         </core-drawer-panel>

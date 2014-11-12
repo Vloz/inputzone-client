@@ -7,6 +7,7 @@ dependencies:
   browser_detect: ">=1.0.3 <2.0.0"
 transformers:
   - polymer:
-      entry_points:      
+      entry_points:
+        - web/index.html      
         - web/ecm.html
         - web/copy.html

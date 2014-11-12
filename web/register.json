@@ -1,0 +1,4 @@
+[
+  {"cname":"unecm","url":"/ecm.html","pnacl":true,"emscr":true,"intag":["ecm"],"outag":["iso","bin"],"desc":"Get back your disc image from a compressed ecm file (mostly used with playstation game file)."},
+  {"cname":"ecmify","url":"/ecm.html","pnacl":true,"emscr":false,"intag":["iso","bin"],"outag":["ecm"],"desc":"Compress disc image by removing error code."}
+]

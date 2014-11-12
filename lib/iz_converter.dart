@@ -32,36 +32,23 @@ class IzConverter extends PolymerElement {
   IzConverter.created() : super.created(){ 
     if(this.attributes.containsKey('active'))
       initConverter();
-//    embed= this.querySelector("embed");
-//    embed.onLoad.listen((_){
-//          embed.on['message'].listen((s){
-//            print("new message:"+(s as MessageEvent).data.toString());
-//            var msg = new TaskMessage((s as MessageEvent).data.toString());
-//            if(msg.id!='0')
-//              handleTaskMessage(msg);
-//          });
-//          naclproxy = new JsObject.fromBrowserObject(embed); 
-//        });
   }
   
   void ready(){
-//    var data = [];
-//    data = UTF8.encode("lol");
-//        print(data);
-//        var foo2 = [];
-//        data.forEach((e)=>foo2.add(e));
+//    var importDoc = document.currentScript.ownerDocument;
+//    //var t = importDoc.querySelector('#disqus');
+//    var clone = document.importNode(this.shadowRoot.querySelector('#disqus'), true);
+//    //document.body.append(clone);
+//    this.shadowRoot.append(clone);
 //    
-//     print(data.runtimeType.toString());
-//     print([108, 111, 108].runtimeType.toString());
-//     
-//     List<int> foo = [108, 111, 108];
-//     print(foo.runtimeType.toString());
-//    w.postMessage(new workerMessage("workerReady",42,data));
+//    var dsq = document.createElement('script'); 
+//    dsq.type = 'text/javascript'; 
+//    dsq.async = true;
+//    dsq.src = '//' + 'inputzone' + '.disqus.com/embed.js';
+//    document.getElementsByTagName('body')[0].append(dsq);
   }
   
   void initConverter(){
-    //window.navigator.mimeTypes.forEach((m)=>print(m.type));
-    //print(); 
     if(!initialized && infoWorker==null && embed == null){
       if(iz_app.runtime == RUNTIMETYPE.EMSCR){
         infoWorker = new Worker(emscrbin);
@@ -72,7 +59,7 @@ class IzConverter extends PolymerElement {
               infoWorker.postMessage(new WorkerPostMessage("workerReady",0,[]));  
       } 
       else{
-        embed= new EmbedElement()..type="application/x-pnacl"..src=pnaclbin..width='600'..height='100'..id='pnacl'..onLoad.listen((_){
+        embed= new EmbedElement()..type="application/x-pnacl"..src=pnaclbin..width='0'..height='0'..id='pnacl'..onLoad.listen((_){
           initialized=true;
               embed.on['message'].listen((s){
                 //print("new message:"+(s as MessageEvent).data.toString());
@@ -151,7 +138,7 @@ class IzConverter extends PolymerElement {
   }
   
   void onPTDownloadClick(Event e, var detail, Node target){
-    print('id'+(e.target as DivElement).id);
+    //print('id'+(e.target as DivElement).id);
     int id = int.parse((e.target as DivElement).id.substring(2));
     iz_app.downloadTaskOutput(tasks[id]);
   }

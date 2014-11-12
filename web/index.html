@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#323838">
+    <title>InputZone - Web converters</title>
+    <link rel="import" href="packages/polymer/polymer.html">
+    <link rel="import" href="packages/inputzone/iz_register.html">
+    <link rel="import" href="packages/core_elements/core_icons.html">
+    <link rel="import" href="packages/core_elements/core_style.html">
+    <link rel="import" href="packages/paper_elements/paper_input.html">
+    <script src="packages/browser/dart.js"></script>
+    <link rel="stylesheet" href="res/index.css" shim-shadowdom>
+    <link href="/res/icon.png" rel="shortcut icon"/>
+</head>
+<body touch-action="auto" layout vertical unresolved fullbleed>
+<section layout vertical center style="background-color: #323838">
+    <img src="res/logofull.svg" style="width: 100%;max-width: 1024px;" />
+    <h2>File converters tools for the web</h2>
+    <div layout horizontal>
+        <core-icon icon="search" self-center></core-icon>
+        <paper-input id="registerSearch" style="text-align: left" label="Search..." flex></paper-input>
+    </div>
+</section>
+<section style="background-color: #0F1112" layout vertical center>
+    <iz-register></iz-register>
+</section>
+<core-style id="paper-input">
+    :host([focused]) .floated-label {
+    color: #fff;
+    }
+
+    .focused-underline,
+    .cursor {
+    background-color: #3b8183;
+    }
+
+
+    :host(.invalid[focused]) .floated-label,
+    :host([focused]) .error-text,
+    :host([focused]) .error-icon {
+    color: #d34336;
+    }
+
+    :host(.invalid) .focused-underline,
+    :host(.invalid) .cursor {
+    background-color: #d34336;
+    }
+</core-style>
+<script src="index.dart" type="application/dart"></script>
+</body>
+</html>
