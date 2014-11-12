@@ -2,12 +2,9 @@
 
 <link rel="import" href="../../packages/core_elements/core_style.html">
 <link rel="import" href="../../packages/paper_elements/paper_input.html">
-<link rel="import" href="../../packages/paper_elements/paper_tabs.html">
-<link rel="import" href="../../packages/paper_elements/paper_tab.html">
 <link rel="import" href="../../packages/core_elements/core_icons.html">
 <link rel="import" href="../../packages/core_elements/core_toolbar.html">
 <link rel="import" href="../../packages/core_elements/core_header_panel.html">
-<link rel="import" href="../../packages/core_elements/core_animated_pages.html">
 <link rel="import" href="../../packages/core_elements/core_drawer_panel.html">
 <link rel="import" href="../../packages/paper_elements/paper_dialog.html">
 <link rel="import" href="../../packages/paper_elements/paper_button.html">
@@ -15,6 +12,10 @@
 <link rel="import" href="../../packages/paper_elements/paper_menu_button.html">
 <link rel="import" href="../../packages/paper_elements/paper_icon_button.html">
 <link rel="import" href="../../packages/paper_elements/paper_dialog_transition.html">
+<link rel="import" href="../../packages/paper_elements/paper_toast.html">
+<link rel="import" href="../../packages/paper_elements/paper_fab.html">
+<link rel="import" href="iz_output.html">
+<link rel="import" href="iz_ellipsis.html">
 <link rel="import" href="iz_register.html">
 
 <polymer-element name="iz-app">
@@ -33,10 +34,58 @@
                     width: 800px;
                 }
             }
+
+            @media screen and (max-width: 1000px) {
+                #subtitle{
+                    display: none;
+                }
+            }
+
+            paper-fab{
+                position: absolute;
+                top: 36px;
+                right: 15%;
+                z-index: 10;
+            }
+
+            @media screen and (max-width: 700px) {
+                paper-fab{
+                    position: absolute;
+                    top: auto;
+                    bottom: 36px;
+                    right: 10%;
+                    z-index: 1;
+                }
+
+            }
+            #subtitle{
+                font-size: 16px;
+            }
+
+            #addicon{
+                height: 32px;
+                width: 38px;
+                color: white;
+                margin-bottom: 7px;
+            }
+
+            .boxMessage{
+                margin-top: 200px;
+                padding: 0 40px;
+            }
+            .errorBoxMessage>*{
+                color: #ff7043;
+            }
+            .errorIcon{
+                color: #ff7043 !important;
+                width: 200px;
+                height: 200px;
+            }
         </style>
+        <paper-fab on-click="{{clickFab}}" hidden?="{{!initialized}}" z="5" icon="add"></paper-fab>
         <core-drawer-panel id="drawer" narrow="{{narrowedDrawer}}" >
             <div drawer style="background-color: #323838" layout vertical>
-                <img on-click="{{onLogoClick}}" src="/res/logofull.svg" style="width: 200px;margin: 25px 0 0 0;">
+                <img on-click="{{onLogoClick}}" src="/res/logofull.svg" style="width: 200px; cursor: pointer; margin: 25px 0 0 0;">
                 <div style="margin:0 25px 0 10px" layout horizontal>
                     <core-icon style="margin: 10px 0 0 0" icon="search" self-center></core-icon>
                     <paper-input on-input="{{onSearchInput}}" label="Search..." flex></paper-input>
@@ -51,23 +100,48 @@
                     </table>
                 </div>
             </div>
-            <core-header-panel main mode="waterfall-tall" tallclass="medium-tall" fit>
+            <core-header-panel mode="waterfall" main fit>
                 <core-toolbar>
                     <paper-icon-button icon="menu" role="button" tabindex="0" on-tap="{{expandDrawer}}" hidden?="{{!narrowedDrawer}}"></paper-icon-button>
+                    <h1 style="font-size: 22px">{{title}}</h1><h2 id="subtitle">{{subtitle}}</h2>
                     <div flex></div>
+
                     <paper-menu-button halign="right" icon="more-vert">
                         <paper-item on-click="{{onCompatiblityModeClick}}" icon="{{runtime.toString()=='0'?'check-box-outline':'check-box-outline-blank'}}" hidden?="{{!browserSupportPnacl}}" label="Compatibility mode"></paper-item>
                         <paper-item on-click="{{onForcePersistentClick}}" icon="{{forcePersistent?'check-box-outline':'check-box-outline-blank'}}" hidden?="{{!browserSupportFS}}" label="Force persistent storage"></paper-item>
                         <paper-item on-click="{{onPurgeEverythingClick}}" icon="restore" label="Purge everything"></paper-item>
                         <paper-item on-click="{{onAboutClick}}" icon="info" label="About input.zone..."></paper-item>
                     </paper-menu-button>
-                    <paper-tabs id="tabs" selected="0"  role="tablist" class="bottom fit">
-                    </paper-tabs>
                 </core-toolbar>
                 <div>
-                    <core-animated-pages id="pages">
-                        <content select="iz-converter"></content>
-                    </core-animated-pages>
+                    <section style="min-height: 500px" hero layout vertical center>
+                        <div class="boxMessage" hidden?="{{tasks.length>0 || !initialized}}">
+                            <h3>CLICK THE <core-icon icon="add-circle"></core-icon> BUTTON TO ADD A FILE TO PROCESS</h3>
+                        </div>
+                        <template repeat="{{key in tasks.keys}}">
+                            <iz-output id="{{key}}" context="{{tasks[key]}}" filename="{{tasks[key].filename}}" hero-id="{{key}}" on-download="{{downloadTask}}" on-cancel="{{cancelTask}}" on-remove="{{removeTask}}"></iz-output>
+                            <paper-toast id="{{'pt'+key.toString()}}" text="{{tasks[key].filename}} => Conversion complete!" duration="10000">
+                                <div id="{{'dd'+key.toString()}}" style="color: #3b8183;" on-tap="{{onPTDownloadClick}}"><core-icon icon="file-download"></core-icon>DOWNLOAD</div>
+                            </paper-toast>
+                        </template>
+
+                        <div hidden?="{{initialized || (runtime.toString()=='0' && emscrbin=='')}}">
+                            <h3>LOADING<iz-ellipsis></iz-ellipsis></h3>
+                        </div>
+                        <div class="errorBoxMessage" hidden?="{{!(runtime.toString()=='0' && emscrbin=='')}}">
+                            <core-icon class="errorIcon" icon="error" ></core-icon>
+                            <h1>ERROR!</h1>
+                            <h3>THIS CONVERTER IS NOT AVAILABLE YET FOR YOUR BROWSER.<br>
+                                IT ONLY WORKS ON DESKTOP CHROME.</h3>
+                        </div>
+
+
+
+
+                    </section>
+                    <section>
+                        <content select="ins"></content>
+                    </section>
                 </div>
                 <div id="disqus" vertical layout center>
                     <div><content select="div"></content></div>

@@ -1,12 +1,11 @@
 import 'package:polymer/polymer.dart';
 import 'package:paper_elements/paper_dialog.dart';
-import 'package:paper_elements/paper_tabs.dart';
 import 'package:paper_elements/paper_input.dart';
-import 'package:paper_elements/paper_tab.dart';
+import 'package:paper_elements/paper_toast.dart';
 import 'package:core_elements/core_drawer_panel.dart';
-import 'package:core_elements/core_animated_pages.dart';
 import 'package:browser_detect/browser_detect.dart';
 import 'dart:html';
+import 'dart:js';
 
 
 import 'package:inputzone/iz_register.dart';
@@ -16,6 +15,8 @@ import 'inputzone.dart';
 @CustomTag('iz-app')
 class IzApp extends PolymerElement {
   
+  @published String title = "Title";
+  @published String subtitle = "A short Subtitle"; 
   @observable int availableTempSpace = 0;
   @observable int availablePersSpace = 0;
   @observable int uiUsedTemp=0; // just used for ui binding
@@ -25,7 +26,24 @@ class IzApp extends PolymerElement {
   @observable bool browserSupportFS = false;
   @observable bool forcePersistent = false;
   
-  List<IzConverter> _converters = new List<IzConverter>();
+  @published String inputExt="*/*";
+  @published String inputHeader="";
+  @published String outputHeader="";
+  @published String credits="";
+  @published String pnaclbin="";
+  @published String emscrbin="";
+  @observable bool initialized = false;
+  @observable var runtime = RUNTIMETYPE.EMSCR;
+ 
+  
+  EmbedElement embed;
+  JsObject pnaclProxy;
+  
+  Worker infoWorker;
+  
+  ObservableMap<int,FileTask> tasks = new ObservableMap<int,FileTask>();
+  
+
   FS_PERS_STATUS fs_pers_status = FS_PERS_STATUS.CLOSED;
   
   @observable ObservableList<FileTask> tasksWaitingOutOfQuotaDialog = new ObservableList<FileTask>();
@@ -33,7 +51,6 @@ class IzApp extends PolymerElement {
   
   Uri appUrl;
   Map<String,String> options = {};
-  @observable RUNTIMETYPE runtime=RUNTIMETYPE.EMSCR;
 
   
   IzApp.created() : super.created(){ 
@@ -58,7 +75,6 @@ class IzApp extends PolymerElement {
      else if(browserSupportPnacl){
        runtime = RUNTIMETYPE.PNACL;
        browserSupportPnacl=true;
-       print("true");
      }     
     
     if(currentBrowser == BROWSER.CHROME){
@@ -66,23 +82,26 @@ class IzApp extends PolymerElement {
       window.navigator.temporaryStorage.requestQuota(40*1024*1024*1024, (int received_size) {
         availableTempSpace = received_size;
             }, (e) {
-              print(e);
               availableTempSpace =0;
             });
       
       window.onBeforeUnload.listen((e){    
-        if(_converters.any((c)=>c.tasks.values.any((f)=>!f.contentDeleted))){
+        if(tasks.values.any((f)=>!f.contentDeleted)){
           Html5FS.temp().then((fs)=>fs.root.getDirectory('/InputZone').then((e)=> e.removeRecursively()));
           Html5FS.pers().then((fs)=>fs.root.getDirectory('/InputZone').then((e)=> e.removeRecursively()));
           e.returnValue="\n\nWARNING!\n\n You didn't purge every tasks before leaving.\n Next time, pay attention...\n\n";
         }
       });
     }
-
-      generateTabs();
+    initConverter();
   }
   
   void ready(){
+    var dsq = document.createElement('script'); 
+          dsq.type = 'text/javascript'; 
+          dsq.async = true;
+          dsq.src = '//' + 'inputzone' + '.disqus.com/embed.js';
+          document.getElementsByTagName('body')[0].append(dsq);
       _outOfQuotaDialog = $['outOfQuotaDialog'];
       tasksWaitingOutOfQuotaDialog.listChanges.listen((changes)=>
         changes.forEach((change){
@@ -94,42 +113,109 @@ class IzApp extends PolymerElement {
               _outOfQuotaDialog.toggle();
         })
       );
-      var dsq = document.createElement('script'); 
-      dsq.type = 'text/javascript'; 
-      dsq.async = true;
-      dsq.src = '//' + 'inputzone' + '.disqus.com/embed.js';
-      document.getElementsByTagName('body')[0].append(dsq);
+      
   }
   
-  //Create header tabs depending on iz-converter content & select the "active" one
-  void generateTabs(){
-    int active =-1;
-    if(options.containsKey('t'))
-      active = int.parse(options['t']);
-       if(this.querySelectorAll('iz-converter').length>1){
-         this.querySelectorAll('iz-converter').forEach((converter){
-           _converters.add(converter);
-           
-           PaperTab tabConverter = new Element.tag('paper-tab');
-           tabConverter..attributes['role'] = 'tab'
-               ..text = converter.id;
-           ($['tabs'] as PaperTabs).children.add(tabConverter);
-           int index = ($['tabs'] as PaperTabs).children.indexOf(tabConverter);
-           
-           if(index==active ||active==-1 && converter.attributes.keys.contains('active')){
-             ($['tabs'] as PaperTabs).selected=index;
-             ($['pages'] as CoreAnimatedPages).selected = index;
-           }
-           tabConverter.onClick.listen((_){
-             int selIndex = ($['tabs'] as PaperTabs).children.indexOf(tabConverter).toInt();
-             print(selIndex);
-             setOption('t',selIndex.toString());
-            // ($['pages'] as CoreAnimatedPages).selected = selIndex;
-            // ((this.shadowRoot.querySelector('content') as ContentElement).getDistributedNodes()[selIndex] as IzConverter).initConverter();
-           });
-         });
-       }
-  }
+  
+   void initConverter(){
+     if(!initialized && infoWorker==null && embed == null){
+       if(iz_app.runtime == RUNTIMETYPE.EMSCR){
+         if(emscrbin==''){
+           return;
+         }
+         infoWorker = new Worker(emscrbin);
+               infoWorker.onMessage.first.then((MessageEvent e){
+                 initialized=true;
+                 infoWorker.onMessage.listen(onEMSCREstimatedOutputSizeReceived);
+               });
+               infoWorker.postMessage(new WorkerPostMessage("workerReady",0,[]));  
+       } 
+       else{
+         embed= new EmbedElement()..type="application/x-pnacl"..src=pnaclbin..width='0'..height='0'..id='pnacl'..onLoad.listen((_){
+           initialized=true;
+               embed.on['message'].listen((s){
+                 //print("new message:"+(s as MessageEvent).data.toString());
+                 var msg = new TaskMessage.FromNACLMessage((s as MessageEvent).data.toString());
+                 if(msg.id!=0){
+                   tasks[msg.id].handleTaskMessage(msg);
+                 }
+               });
+               pnaclProxy = new JsObject.fromBrowserObject(embed); 
+             });
+         this.shadowRoot.children.add(embed);
+          }
+     }
+    
+   }
+   
+   void clickFab(){
+     InputElement input = new InputElement(type:'file')
+     ..attributes.addAll({'accept':inputExt})
+     ..onChange.first.then((evt)=>handleFile(evt))
+     ..click();
+   }
+   
+
+   void handleFile(Event e){
+      var input = (e.target as InputElement);
+      var files = input.files;
+
+          // Loop through the FileList and render image files as thumbnails.
+          input.files.forEach((f) {
+            newInput(f);
+          });
+    }
+   
+   
+   void newInput(File file){
+     var url = Url.createObjectUrl(file);
+     FileTask task;
+     if(iz_app.runtime == RUNTIMETYPE.PNACL)
+       task = new PNaclTask(this,file.name, url, file.size, pnaclProxy);
+     else
+       task = new EmscrTask(this,file.name, url, file.size, new Worker(emscrbin));
+
+     addTask(task);
+     estimateOutputSize(task);
+       
+
+   }
+   
+   void addTask(FileTask input){
+     tasks[input.id] = input;
+   }
+   
+   void removeTask(Event e, var details, Node target){
+     tasks.remove(tasks[int.parse(details)]);
+   }
+   
+   void estimateOutputSize(FileTask task){
+     if(iz_app.runtime == RUNTIMETYPE.EMSCR)
+       infoWorker.postMessage(new WorkerPostMessage.fromString("estimateOutputSize",task.id,task.inputSize.toString()));
+     else{
+       pnaclProxy.callMethod('postMessage', ['type\n'+MESSAGETYPE.ESTIMATESIZE.toString()+'\nid\n'+task.id.toString()+'\ninputSize\n'+task.inputSize.toString()]);
+     }
+   }
+   
+   void onEMSCREstimatedOutputSizeReceived(MessageEvent msgEvent){
+     var wmsg = new WorkerReceivedMessage.fromJSON(msgEvent.data);
+     int id_target = wmsg.callbackId;
+     int size = int.parse(wmsg.message());
+     tasks[id_target].estimatedOutputSize = size;
+     iz_app.querySpaceAndRun(tasks[id_target]);
+   }
+   
+   void showCompleteToast(int id){
+     (this.shadowRoot.querySelector('#pt'+id.toString()) as PaperToast).show();
+   }
+   
+   void onPTDownloadClick(Event e, var detail, Node target){
+     //print('id'+(e.target as DivElement).id);
+     int id = int.parse((e.target as DivElement).id.substring(2));
+     iz_app.downloadTaskOutput(tasks[id]);
+   }
+
+  
   
    void querySpaceAndRun(FileTask taskToRun){
       if(currentBrowser == BROWSER.CHROME){
@@ -144,11 +230,10 @@ class IzApp extends PolymerElement {
                   (int received_size){
                      availablePersSpace = received_size;
                      fs_pers_status = FS_PERS_STATUS.OPENED;
-                     _converters.forEach((IzConverter c)=>c.tasks.forEach((k,v){
+                     this.tasks.forEach((k,v){
                        if((v as FileTask).status_id.toString()==STATUSTYPE.WAITINGQUOTA.toString())
                          querySpaceAndRun(v);
-                           })
-                       );
+                           });
                          }, (e) {
                            print(e); 
                            availableTempSpace =0;
@@ -176,12 +261,12 @@ class IzApp extends PolymerElement {
   
    
    int getTempUsedSpace(){
-     uiUsedTemp = _converters.fold(0, (a,b)=>a+b.tasks.values.where((f)=>f.fs_location == FILESYSTEMTYPE.HTML5TEMP).fold(0, (a,b)=>a+b.taskSize));
+     uiUsedTemp = tasks.values.where((f)=>f.fs_location == FILESYSTEMTYPE.HTML5TEMP).fold(0, (a,b)=>a+b.taskSize);
      return uiUsedTemp;
    }
    
    int getPersUsedSpace(){
-     uiUsedPers = _converters.fold(0, (a,b)=>a+b.tasks.values.where((f)=>f.fs_location == FILESYSTEMTYPE.HTML5PERS).fold(0, (a,b)=>a+b.taskSize));
+     uiUsedPers = tasks.values.where((f)=>f.fs_location == FILESYSTEMTYPE.HTML5PERS).fold(0, (a,b)=>a+b.taskSize);
         return uiUsedPers;
       }
   
@@ -246,7 +331,7 @@ class IzApp extends PolymerElement {
   }
   
   void onPurgeEverythingClick(){
-    _converters.forEach((c)=>c.tasks.forEach((k,v)=>v.cancel()));
+    tasks.forEach((k,v)=>v.cancel());
     Html5FS.temp().then((fs)=>fs.root.getDirectory('/InputZone').then((e)=> e.removeRecursively()));
     Html5FS.pers().then((fs)=>fs.root.getDirectory('/InputZone').then((e)=> e.removeRecursively()));
   }

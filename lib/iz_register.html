@@ -35,10 +35,28 @@
                     margin: 6px;
                 }
 
+                .intag {
+                    color: #bdced7;
+                    outline-color: #bdced7;
+                    outline-width: 1px;
+                    outline-style: dashed;
+                }
+                .outag{
+                    background-color: white;
+                    color: #333;
+                    border-radius: 4px;
+                }
+
                 .desc{
                     font-size: 12px;
                     max-width: 300px;
                     text-align: justify;
+                }
+
+                @media screen and (max-width: 800px) {
+                    .desc{
+                        display: none;
+                    }
                 }
             </style>
             <template repeat="{{entry in entries}}">
