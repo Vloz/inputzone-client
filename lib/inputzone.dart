@@ -1,7 +1,6 @@
 library InputZone;
 
 import 'package:polymer/polymer.dart';
-import 'iz_converter.dart';
 import 'iz_app.dart';
 import 'dart:html';
 import 'dart:js';

@@ -5,18 +5,16 @@ import 'package:paper_elements/paper_toast.dart';
 import 'package:core_elements/core_drawer_panel.dart';
 import 'package:browser_detect/browser_detect.dart';
 import 'dart:html';
+import 'dart:async';
 import 'dart:js';
 
 
 import 'package:inputzone/iz_register.dart';
-import 'package:inputzone/iz_converter.dart';
 import 'inputzone.dart';
 
 @CustomTag('iz-app')
 class IzApp extends PolymerElement {
   
-  @published String title = "Title";
-  @published String subtitle = "A short Subtitle"; 
   @observable int availableTempSpace = 0;
   @observable int availablePersSpace = 0;
   @observable int uiUsedTemp=0; // just used for ui binding
@@ -27,17 +25,17 @@ class IzApp extends PolymerElement {
   @observable bool forcePersistent = false;
   
   @published String inputExt="*/*";
-  @published String inputHeader="";
-  @published String outputHeader="";
-  @published String credits="";
   @published String pnaclbin="";
   @published String emscrbin="";
   @observable bool initialized = false;
   @observable var runtime = RUNTIMETYPE.EMSCR;
- 
+  @observable String t_e_l;
+  @observable bool compliantBrowser = true;
   
   EmbedElement embed;
   JsObject pnaclProxy;
+  
+  InputElement input;
   
   Worker infoWorker;
   
@@ -56,6 +54,12 @@ class IzApp extends PolymerElement {
   IzApp.created() : super.created(){ 
     iz_app = this;
     detectBrowser();
+    if(currentBrowser== BROWSER.INTERNETEXPLORER || currentBrowser== BROWSER.OPERA)
+    {
+      emscrbin='';
+      compliantBrowser=false;
+    }
+      
     appUrl = Uri.parse(window.location.href); 
     if(appUrl.hasFragment){
       appUrl.fragment.split(";").forEach((f){
@@ -96,12 +100,18 @@ class IzApp extends PolymerElement {
     initConverter();
   }
   
+  bool _ready_done=false;
   void ready(){
-    var dsq = document.createElement('script'); 
-          dsq.type = 'text/javascript'; 
-          dsq.async = true;
-          dsq.src = '//' + 'inputzone' + '.disqus.com/embed.js';
-          document.getElementsByTagName('body')[0].append(dsq);
+    if(_ready_done)
+      return;
+    _ready_done=true;
+    this.children.add(new DivElement()..id='disqus_thread');
+    document.body.append((document.createElement('script') as ScriptElement)
+        ..type = 'text/javascript'
+        ..async = true
+        ..src = 'http://' + 'inputzone' + '.disqus.com/embed.js');
+      
+        
       _outOfQuotaDialog = $['outOfQuotaDialog'];
       tasksWaitingOutOfQuotaDialog.listChanges.listen((changes)=>
         changes.forEach((change){
@@ -119,7 +129,7 @@ class IzApp extends PolymerElement {
   
    void initConverter(){
      if(!initialized && infoWorker==null && embed == null){
-       if(iz_app.runtime == RUNTIMETYPE.EMSCR){
+       if(runtime == RUNTIMETYPE.EMSCR){
          if(emscrbin==''){
            return;
          }
@@ -149,31 +159,38 @@ class IzApp extends PolymerElement {
    }
    
    void clickFab(){
-     InputElement input = new InputElement(type:'file')
-     ..attributes.addAll({'accept':inputExt})
-     ..onChange.first.then((evt)=>handleFile(evt))
-     ..click();
+     if(input == null)
+     {
+       input = new InputElement(type:'file')
+       ..id="input"
+       ..attributes.addAll({'accept':inputExt})
+       ..onChange.first.then((evt)=>handleFile(evt));
+       document.body.append(input);
+     }
+     input.click();
    }
    
 
    void handleFile(Event e){
-      var input = (e.target as InputElement);
       var files = input.files;
 
           // Loop through the FileList and render image files as thumbnails.
           input.files.forEach((f) {
             newInput(f);
           });
+          document.body.children.remove(input);
+          input = null;
     }
    
    
    void newInput(File file){
      var url = Url.createObjectUrl(file);
+     print(url);
      FileTask task;
      if(iz_app.runtime == RUNTIMETYPE.PNACL)
-       task = new PNaclTask(this,file.name, url, file.size, pnaclProxy);
+       task = new PNaclTask(file.name, url, file.size, pnaclProxy);
      else
-       task = new EmscrTask(this,file.name, url, file.size, new Worker(emscrbin));
+       task = new EmscrTask(file.name, url, file.size, new Worker(emscrbin));
 
      addTask(task);
      estimateOutputSize(task);
@@ -337,6 +354,8 @@ class IzApp extends PolymerElement {
   }
   
   void onAboutClick(){
+    t_e_l='+'+'33'+' 6 23'+' 72';
+    t_e_l+=' 15 96';
     ($['AboutDialog'] as PaperDialog).toggle();
   }
   

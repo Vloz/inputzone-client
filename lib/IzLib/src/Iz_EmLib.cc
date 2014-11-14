@@ -3,7 +3,7 @@
 #define TRUNCBUFSIZE 5048576 //Buffer size used for the chunks of the truncation
 #define DOWNLOADCHUNKSIZE 104857600
 #define DOWNLOADCHUNKSIZEFIREFOX 471859200
-
+#define DOWNLOADCHUNKSIZEIE 67108864
 
 TaskProps _taskProps;
 
@@ -60,8 +60,7 @@ void iz_release(IZ_FILE* output){
 
 
 void onDownloadInputFinished(unsigned handle, void* args, const char* fullpath){
-
-    _taskProps.input = iz_fopen((_taskProps.mountPoint+ getMessageInputDirectoryPath(_taskProps.startMessage)+std::to_string(_taskProps.inputIndex)).c_str(),"rb+");
+    _taskProps.input = iz_fopen((_taskProps.mountPoint+ getMessageInputFullPath(_taskProps.startMessage)).c_str(),"rb+");
     if(_taskProps.input==NULL)
     {
         iz_error("Couldn't create input file...");
@@ -231,10 +230,10 @@ void iz_init(char *data, int size, iz_init_onDone_func converterCallback,iz_post
                     FS.write(stream, new Uint8Array(xhr.response), 0, xhr.response.byteLength );
                     FS.close(stream);
                     progress(100);
-                },getMessageValue("url", data).c_str(),(_taskProps.mountPoint+ getMessageInputDirectoryPath(_taskProps.startMessage)+std::to_string(_taskProps.inputIndex)).c_str(),(unsigned long)_taskProps.inputSize, chunksize);
+                },getMessageValue("url", data).c_str(), (_taskProps.mountPoint+ getMessageInputFullPath(_taskProps.startMessage)).c_str(),(unsigned long)_taskProps.inputSize, chunksize);
 
 
-        _taskProps.input = iz_fopen((_taskProps.mountPoint+ getMessageInputDirectoryPath(_taskProps.startMessage)+std::to_string(_taskProps.inputIndex)).c_str(),"rb+");
+        _taskProps.input = iz_fopen( (_taskProps.mountPoint+ getMessageInputFullPath(_taskProps.startMessage)).c_str(),"rb+");
         if(_taskProps.input==NULL)
         {
             iz_error("Couldn't create input file...");
@@ -244,9 +243,8 @@ void iz_init(char *data, int size, iz_init_onDone_func converterCallback,iz_post
         _taskProps.convertStart = clock();
         iz_updatePreProgress((uint8_t)0);
         (*_taskProps.init_onDone_func)(_taskProps.id,_taskProps.input,_taskProps.inputSize,_taskProps.mountPoint+ getMessageOutputDirectoryPath(_taskProps.startMessage)+"/");
-    }
-    else{
-        emscripten_async_wget2(getMessageValue("url", data).c_str(), (_taskProps.mountPoint+ getMessageInputDirectoryPath(_taskProps.startMessage)+std::to_string(_taskProps.inputIndex)).c_str(),"GET", "", (void*) getMessageShortId(data),
+    }else{
+        emscripten_async_wget2(getMessageValue("url", data).c_str(), (_taskProps.mountPoint+ getMessageInputFullPath(_taskProps.startMessage)).c_str(),"GET", "", (void*) getMessageShortId(data),
                 onDownloadInputFinished, onDownloadInputError, onDownloadInputProgress);
     }
 

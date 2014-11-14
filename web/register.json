@@ -1,4 +1,5 @@
 [
-  {"cname":"unecm","url":"/unecm.html","pnacl":true,"emscr":true,"intag":["ecm"],"outag":["iso","bin"],"desc":"Get back your disc image from a compressed ecm file (mostly used with playstation game files)."},
+  {"cname":"unecm","url":"/unecm.html","pnacl":true,"emscr":true,"intag":["ecm"],"outag":["iso","bin"],
+   "desc":"Get back your disc image from a compressed ecm file (mostly used with playstation game files)."},
   {"cname":"ecmify","url":"/ecmify.html","pnacl":true,"emscr":false,"intag":["iso","bin"],"outag":["ecm"],"desc":"Make your disc image more compressible."}
 ]

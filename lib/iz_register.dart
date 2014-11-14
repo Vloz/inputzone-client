@@ -27,14 +27,13 @@ class IzRegister extends PolymerElement {
       String f = fragment.toLowerCase();
       entries.addAll(
           allEntries.where((e)=>e.cname.toLowerCase().contains(f) 
-          || e.inext.any((ext)=>ext.toLowerCase().contains(f)) 
-          || e.outext.any((ext)=>ext.toLowerCase().contains(f)))
+          || e.intag.any((tag)=>tag.toLowerCase().contains(f)) 
+          || e.outag.any((tag)=>tag.toLowerCase().contains(f)))
           );
     }
   }
   
-  void onEntryClick(Event e, var details, Node target){
-    
+  void onEntryClick(Event e, var details, Node target){  
     window.location.href = allEntries.firstWhere((e)=>e.cname == target.id).url;
   }
 }

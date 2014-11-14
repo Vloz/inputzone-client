@@ -14,18 +14,28 @@
     <link rel="stylesheet" href="res/index.css" shim-shadowdom>
     <link href="/res/icon.png" rel="shortcut icon"/>
 </head>
-<body touch-action="auto" layout vertical unresolved fullbleed>
-<section layout vertical center style="background-color: #323838">
-    <img src="res/logofull.svg" style="width: 100%;max-width: 1024px;" />
-    <h2>All your data aren't belong to us</h2>
-    <div layout horizontal>
+<body touch-action="auto" unresolved fullbleed>
+<style>
+    #logo{
+        width: 100%;
+        background-image: url(res/logofullwithslogan.svg);
+        max-width: 1024px;
+        height: 300px;
+        background-size: 100%;
+        background-repeat: no-repeat;
+    }
+</style>
+<section layout vertical center style="background-color: #323838;">
+    <div id="logo"></div>
+    <div style="position: relative" layout horizontal center>
         <core-icon icon="search" self-center></core-icon>
-        <paper-input id="registerSearch" style="text-align: left" label="Search..." flex></paper-input>
+        <paper-input id="registerSearch" style="text-align: left; display: block" label="Search..." flex></paper-input>
     </div>
 </section>
-<section style="background-color: #0F1112" layout vertical center>
+<section style="background-color: #0F1112;min-height: 500px" layout vertical center>
     <iz-register></iz-register>
 </section>
+
 <core-style id="paper-input">
     :host([focused]) .floated-label {
     color: #fff;

@@ -12,11 +12,11 @@
                 .entry{
                     margin: 20px 10px;
                     padding: 20px;
-                    height: 40px;
-                    cursor: pointer;
+                    min-height: 40px;
                     background-color: #2c2f2f;
                     border-radius: 3px;
                     position: relative;
+                    max-width: 400px;
                 }
 
                 .chromeonly{
@@ -47,29 +47,33 @@
                     border-radius: 4px;
                 }
 
-                .desc{
-                    font-size: 12px;
-                    max-width: 300px;
-                    text-align: justify;
+                .chromeonlytxt{
+                    color: red;
+                    font-size: 9px;
+                    text-align: right;
                 }
 
-                @media screen and (max-width: 800px) {
-                    .desc{
-                        display: none;
-                    }
+                .desc{
+                    text-align: justify;
+                    color: #777;
+                    font-style: italic;
                 }
+
             </style>
             <template repeat="{{entry in entries}}">
-                <div id="{{entry.cname}}" class="entry {{entry.emscr?'':'chromeonly'}}" on-click="{{onEntryClick}}" layout horizontal center>
-                    <div style="font-family: Oswald; font-size: 32px">{{entry.cname}}</div>
-                    <div class="tagdiv" horizontal layout>
-                        <template repeat="{{tag in entry.intag}}"><div class="tag intag"> {{tag}}</div> </template>
-                        <template repeat="{{tag in entry.outag}}"><div class="tag outag"> {{tag}} </div></template>
+
+                <div class="entry {{entry.emscr?'':'chromeonly'}}">
+                    <a _href="{{'http://input.zone'+entry.url}}">{{'http://input.zone'+entry.url}}</a>
+                    <div id="{{entry.cname}}" layout horizontal center wrap>
+                        <div class="tagdiv" horizontal layout>
+                            <template repeat="{{tag in entry.intag}}"><div class="tag intag"> {{tag}}</div> </template>
+                            <template repeat="{{tag in entry.outag}}"><div class="tag outag"> {{tag}} </div></template>
+                        </div>
                     </div>
-                    <div class="desc" flex>
+                    <div class="desc">
                         {{entry.desc}}
                     </div>
-                    <paper-ripple fit></paper-ripple>
+                    <div hidden?="{{entry.emscr!=''}}">Only run on chrome for desktop</div>
                 </div>
             </template>
         </template>

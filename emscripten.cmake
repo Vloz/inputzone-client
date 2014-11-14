@@ -283,7 +283,7 @@ file(GLOB_RECURSE SOURCE_FILES ${CMAKE_SOURCE_DIR}/web/converters/${PROGRAM}/ems
 
 add_executable(${PROGRAM} ${SOURCE_FILES})
 
-set_target_properties(${PROGRAM} PROPERTIES LINK_FLAGS "-Oz  -s DEMANGLE_SUPPORT=1  -s TOTAL_MEMORY=134217728 -s EXPORTED_FUNCTIONS=\"['_initWorker','_updateDownloadProgress','_sendOutputUrl','_workerReady','_estimateOutputSize']\" -s BUILD_AS_WORKER=1 -s MEMFS_APPEND_TO_TYPED_ARRAYS=1")
+set_target_properties(${PROGRAM} PROPERTIES LINK_FLAGS "-Oz -s EXPORTED_FUNCTIONS=\"['_initWorker','_updateDownloadProgress','_sendOutputUrl','_workerReady','_estimateOutputSize']\" -s BUILD_AS_WORKER=1 -s MEMFS_APPEND_TO_TYPED_ARRAYS=1")
 
 target_link_libraries(
         ${PROGRAM} Iz_EmLib

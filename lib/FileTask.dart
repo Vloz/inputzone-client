@@ -34,12 +34,11 @@ abstract class FileTask extends Observable{
   
   bool contentDeleted = false;
   
-  IzConverter converter;
   
   FILESYSTEMTYPE fs_location;
   
   
-  FileTask(this.converter,this.filename,this.input_file_url,this.inputSize){
+  FileTask(this.filename,this.input_file_url,this.inputSize){
     this.id = new DateTime.now().millisecondsSinceEpoch;
   }
   
@@ -119,7 +118,7 @@ abstract class FileTask extends Observable{
       case STATUSTYPE.COMPLETED:
         progress=100;//Sometime it stuck to 99%
         status= 'Finished, click the button to retrieve the file.';
-        converter.showCompleteToast(this.id);
+        iz_app.showCompleteToast(this.id);
         break;
       case STATUSTYPE.ERRRORED:
         status= 'ERROR';
@@ -156,7 +155,7 @@ abstract class FileTask extends Observable{
 
   
   void remove(){
-    converter.tasks.remove(this.id);
+    iz_app.tasks.remove(this.id);
   }
     
   
@@ -169,7 +168,7 @@ abstract class FileTask extends Observable{
 class EmscrTask extends FileTask{
   Worker _worker;
   
-  EmscrTask(converter,filename,url,size, this._worker):super(converter,filename,url,size){
+  EmscrTask(filename,url,size, this._worker):super(filename,url,size){
     _worker.onMessage.listen((MessageEvent m){
       var msg = new WorkerReceivedMessage.fromJSON(m.data);
       handleTaskMessage(new TaskMessage.FromEmscrMessage(msg.message())); 
@@ -224,7 +223,7 @@ class EmscrTask extends FileTask{
 class PNaclTask extends FileTask{
   JsObject _pnaclProxy;
   
-  PNaclTask(converter,filename,url,size, this._pnaclProxy):super(converter,filename,url,size);
+  PNaclTask(filename,url,size, this._pnaclProxy):super(filename,url,size);
   
   void start(FILESYSTEMTYPE fileSystemType){
     fs_location = fileSystemType;
