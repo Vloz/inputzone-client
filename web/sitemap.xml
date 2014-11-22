@@ -12,4 +12,12 @@
         <loc>http://input.zone/ecmify.html</loc>
         <changefreq>monthly</changefreq>
     </url>
+    <url>
+        <loc>http://input.zone/cwebp.html</loc>
+        <changefreq>monthly</changefreq>
+    </url>
+    <url>
+        <loc>http://input.zone/dwebp.html</loc>
+        <changefreq>monthly</changefreq>
+    </url>
 </urlset>

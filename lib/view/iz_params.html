@@ -1,0 +1,69 @@
+<link rel="import" href="../../../packages/polymer/polymer.html">
+<link rel="import" href="../../../packages/paper_elements/paper_dropdown_menu.html">
+<link rel="import" href="../../../packages/paper_elements/paper_item.html">
+<polymer-element name="iz-params">
+    <template>
+        <style>
+            :host{
+                display: block;
+                text-align: left;
+                color: white;
+                background-color: #424b4b;
+                border-radius: 2px 2px 0 0;
+            }
+
+            #content{
+                font-size: 12px;
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+                padding: 0 15px;
+            }
+            ::content>*{
+                margin: 0px 15px;
+            }
+            #shell{
+                background-color: #666;
+                color: white;
+                width: 100%;
+                font-size: 10px;
+                font-family: monospace;
+            }
+            #shell>textarea{
+                background-color: #666;
+                border: none;
+                color: white;
+                font-size: 10px;
+                font-family: monospace;
+                min-height: 60px;
+            }
+
+            #presetmenu{
+                color: #333;
+                margin: 0 15px;
+                width: 94%;
+                background-color: transparent;
+            }
+
+            #presetmenu::shadow #control[selected]{
+                color: white;
+            }
+
+        </style>
+        <div>
+            <paper-dropdown-menu on-core-select="{{onChangePreset}}" id="presetmenu">
+                <template repeat="{{preset in presets}}">
+                    <paper-item label="{{preset.name}}"></paper-item>
+                </template>
+            </paper-dropdown-menu>
+        </div>
+        <div id="content">
+            <content>
+            </content>
+        </div>
+        <div id="shell" horizontal layout>
+            <textarea flex spellcheck="false" value="{{context.params}}" id="t1"></textarea>
+        </div>
+    </template>
+    <script type="application/dart" src="iz_params.dart"></script>
+</polymer-element>

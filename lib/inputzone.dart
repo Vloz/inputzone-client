@@ -7,8 +7,8 @@ import 'dart:js';
 import 'dart:convert';
 import 'dart:async';
 
-part 'FileTask.dart';
-part 'RegisterEntry.dart';
+part 'model/FileTask.dart';
+part 'model/RegisterEntry.dart';
 
 BROWSER currentBrowser = BROWSER.UNKNOWN;
 
@@ -25,14 +25,14 @@ class MESSAGETYPE {
   static const CANCEL = const MESSAGETYPE._internal(2);
   static const PREPROGRESS = const MESSAGETYPE._internal(3);
   static const PROGRESS = const MESSAGETYPE._internal(4);
-  static const ERROR = const MESSAGETYPE._internal(5);
+  static const CONSOLE = const MESSAGETYPE._internal(5);
   static const STATUS = const MESSAGETYPE._internal(6);
   static const OUTPUTURL = const MESSAGETYPE._internal(7);
   static const DETAILS = const MESSAGETYPE._internal(8);
-  static const ESTIMATESIZE = const MESSAGETYPE._internal(9);
+  static const PRERUN = const MESSAGETYPE._internal(9);
   
 
-  static get values => [NULL,START, CANCEL,PREPROGRESS,PROGRESS,ERROR,STATUS,OUTPUTURL,DETAILS,ESTIMATESIZE];
+  static get values => [NULL,START, CANCEL,PREPROGRESS,PROGRESS,CONSOLE,STATUS,OUTPUTURL,DETAILS,PRERUN];
 }
 
 
@@ -51,10 +51,10 @@ class STATUSTYPE {
   static const OPTIMIZINGRAM = const STATUSTYPE._internal(7);
   static const WAITINGQUOTA = const STATUSTYPE._internal(8);
   static const WAITINGUSERCLICK = const STATUSTYPE._internal(9);
-  static const ESTIMATINGOUTPUTSIZE = const STATUSTYPE._internal(10);
+  static const PRERUNNING = const STATUSTYPE._internal(10);
   
 
-  static get values => [CANCELED,STARTING, CONVERTING,COMPLETING,COMPLETED,ERRRORED,CANCELING,OPTIMIZINGRAM,WAITINGQUOTA,WAITINGUSERCLICK,ESTIMATINGOUTPUTSIZE];
+  static get values => [CANCELED,STARTING, CONVERTING,COMPLETING,COMPLETED,ERRRORED,CANCELING,OPTIMIZINGRAM,WAITINGQUOTA,WAITINGUSERCLICK,PRERUNNING];
 }
 
 

@@ -179,12 +179,12 @@ int unecmify(
     for(;;) {
         int c = iz_fgetc(in);
         int bits = 5;
-        if(c == EOF) goto uneof1;
+        if(c == EOF) goto uneof;
         type = c & 3;
         num = (c >> 2) & 0x1F;
         while(c & 0x80) {
             c = iz_fgetc(in);
-            if(c == EOF) goto uneof2;
+            if(c == EOF) goto uneof;
             num |= ((unsigned)(c & 0x7F)) << bits;
             bits += 7;
         }
@@ -195,7 +195,7 @@ int unecmify(
             while(num) {
                 int b = num;
                 if(b > 2352) b = 2352;
-                if(iz_fread(sector, 1, b, in) != b) goto uneof3;
+                if(iz_fread(sector, 1, b, in) != b) goto uneof;
                 checkedc = edc_partial_computeblock(checkedc, sector, b);
                 iz_fwrite(sector, 1, b, out);
                 num -= b;
@@ -208,8 +208,8 @@ int unecmify(
                 switch(type) {
                     case 1:
                         sector[0x0F] = 0x01;
-                        if(iz_fread(sector + 0x00C, 1, 0x003, in) != 0x003) goto uneof4;
-                        if(iz_fread(sector + 0x010, 1, 0x800, in) != 0x800) goto uneof5;
+                        if(iz_fread(sector + 0x00C, 1, 0x003, in) != 0x003) goto uneof;
+                        if(iz_fread(sector + 0x010, 1, 0x800, in) != 0x800) goto uneof;
                         eccedc_generate(sector, 1);
                         checkedc = edc_partial_computeblock(checkedc, sector, 2352);
                         iz_fwrite(sector, 2352, 1, out);
@@ -217,7 +217,7 @@ int unecmify(
                         break;
                     case 2:
                         sector[0x0F] = 0x02;
-                        if(iz_fread(sector + 0x014, 1, 0x804, in) != 0x804) goto uneof6;
+                        if(iz_fread(sector + 0x014, 1, 0x804, in) != 0x804) goto uneof;
                         sector[0x10] = sector[0x14];
                         sector[0x11] = sector[0x15];
                         sector[0x12] = sector[0x16];
@@ -229,7 +229,7 @@ int unecmify(
                         break;
                     case 3:
                         sector[0x0F] = 0x02;
-                        if(iz_fread(sector + 0x014, 1, 0x918, in) != 0x918) goto uneof7;
+                        if(iz_fread(sector + 0x014, 1, 0x918, in) != 0x918) goto uneof;
                         sector[0x10] = sector[0x14];
                         sector[0x11] = sector[0x15];
                         sector[0x12] = sector[0x16];
@@ -243,7 +243,7 @@ int unecmify(
             }
         }
     }
-    if(iz_fread(sector, 1, 4, in) != 4) goto uneof8;
+    if(iz_fread(sector, 1, 4, in) != 4) goto uneof;
     printf( "Decoded %ld bytes -> %ld bytes", iz_ftell(in), iz_ftell(out));
     if(
             (sector[0] != ((checkedc >>  0) & 0xFF)) ||
@@ -261,22 +261,6 @@ int unecmify(
         goto corrupt;
     }
     return 0;
-    uneof1:
-    iz_print("1");
-    uneof2:
-    iz_print("2");
-    uneof3:
-    iz_print("3");
-    uneof4:
-    iz_print("4");
-    uneof5:
-    iz_print("5");
-    uneof6:
-    iz_print("6");
-    uneof7:
-    iz_print("7");
-    uneof8:
-    iz_print("8");
     uneof:
     iz_error("Unexpected end of file!");
     corrupt:
@@ -287,7 +271,7 @@ int unecmify(
 
 
 
-void Convert(std::string id,IZ_FILE* input, uint64_t inputSize,std::string ouputDirectoryPath ){
+/*void Convert(std::string id,IZ_FILE* input, uint64_t inputSize,std::string ouputDirectoryPath ){
     IZ_FILE* output;
     std::string outputFullPath = ouputDirectoryPath+input->basename;
     if((output=iz_fopen(outputFullPath.c_str(), "wb")) == NULL) {
@@ -300,22 +284,93 @@ void Convert(std::string id,IZ_FILE* input, uint64_t inputSize,std::string ouput
         iz_release(output);
     iz_print_fs_count_log();
 
+}*/
+
+int main(int argc, char **argv) {
+    IZ_FILE *fin, *fout;
+    char *infilename;
+    char *outfilename;
+    /*
+    ** Initialize the ECC/EDC tables
+    */
+    eccedc_init();
+    /*
+    ** Check command line
+    */
+    if((argc != 2) && (argc != 3)) {
+        iz_error("usage:"+std::string(argv[0])+" ecmfile [outputfile]");
+        return 1;
+    }
+    /*
+    ** Verify that the input filename is valid
+    */
+    infilename = argv[1];
+    if(strlen(infilename) < 5) {
+        iz_error("filename '"+std::string(infilename)+"' is too short");
+        return 1;
+    }
+    if(strcasecmp(infilename + strlen(infilename) - 4, ".ecm")) {
+        iz_error("filename must end in .ecm");
+        return 1;
+    }
+    /*
+    ** Figure out what the output filename should be
+    */
+    if(argc == 3) {
+        outfilename = argv[2];
+    } else {
+        outfilename = (char*)malloc(strlen(infilename) - 3);
+        if(!outfilename) abort();
+        memcpy(outfilename, infilename, strlen(infilename) - 4);
+        outfilename[strlen(infilename) - 4] = 0;
+    }
+    iz_console("Decoding "+std::string(infilename)+" to "+std::string(outfilename)+" .");
+    /*
+    ** Open both files
+    */
+    fin = iz_fopen(infilename, "rb");
+    if(!fin) {
+        iz_error("Couldn't open input file:"+std::string(infilename));
+        return 1;
+    }
+    fout = iz_fopen(outfilename, "wb");
+    if(!fout) {
+        iz_error("Couldn't open output file:"+std::string(outfilename));
+        iz_fclose(fin);
+        return 1;
+    }
+    /*
+    ** Decode
+    */
+    //setvbuf ( fout, NULL , _IOFBF , 32541536 );
+    unecmify(fin, fout);
+    /*
+    ** Close everything
+    */
+    iz_release(fout);
+    iz_fclose(fout);
+    iz_fclose(fin);
+    return 0;
 }
 
+
+
+uint64_t estimateOutputSize(uint64_t inputSize){
+    return 750*1024*1024;
+}
+
+std::string baseParameters(std::string taskId, std::string inputFullPath, uint64_t inputSize, std::string outputDirectoryPath, std::string baseName, std::string inputExtension){
+    return "\\\""+inputFullPath+"\\\" \\\""+outputDirectoryPath+baseName+"\\\"";
+}
 
 extern "C"{
 void initWorker(char *data, int size){
-    iz_init(data, size, Convert,emscripten_worker_respond_provisionally,emscripten_worker_respond );
+    iz_init(data, size, main,emscripten_worker_respond_provisionally,emscripten_worker_respond );
 }
 
-void estimateOutputSize(char *data, int size){
-    uint64_t inputSize = strtoull(data,NULL,0);
-    uint64_t estimatedOutputSize = 0;
-
-    estimatedOutputSize = 750*1024*1024;
-
-    std::string m = std::to_string(estimatedOutputSize);
-    emscripten_worker_respond_provisionally((char*)m.c_str(),m.length());
+void prerunRequest(char *data, int size){
+    std::string answer = createPrerunRequest(data, size);
+    emscripten_worker_respond_provisionally((char*)answer.c_str(),answer.length());
 }
 
 }

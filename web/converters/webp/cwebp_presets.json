@@ -1,0 +1,8 @@
+[
+  {"name":"Default","value":"-q 80 -alpha_q 100 -sns 80 -f 60 -sharpness 0 -strong -size 0 -pre 0"},
+  {"name":"Picture","value":"-q 80 -alpha_q 100 -strong -size 0 -sns 80 -sharpness 4 -f 35 -pre 0"},
+  {"name":"Photo","value":"-q 80 -alpha_q 100 -strong -size 0 -sns 80 -sharpness 3 -f 30 -pre 2"},
+  {"name":"Drawing","value":"-q 80 -alpha_q 100 -strong -size 0 -pre 0 -sns 25 -sharpness 6 -f 10"},
+  {"name":"Icon","value":"-q 80 -alpha_q 100 -strong -size 0 -sharpness 0 -sns 0 -f 0 -pre 0"},
+  {"name":"Text","value":"-q 80 -alpha_q 100 -sharpness 0 -strong -size 0 -sns 0 -f 0 -pre 0 -segments 2"}
+]

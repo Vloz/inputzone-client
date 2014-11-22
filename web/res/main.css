@@ -1,0 +1,452 @@
+@import url("//fonts.googleapis.com/css?family=Open+Sans");
+@import url("//fonts.googleapis.com/css?family=Oswald:700");
+/*
+ * PolymerThemes v0.3.0
+ * Homepage: http://polymerthemes.com
+ * Copyright 2014 Polymer Themes
+ * Licensed under BSD
+ * Based on Polymer: http://www.polymer-project.org/
+ * Compatible with Polymer 0.4.2
+ */
+iz-app {
+    font-family: 'Open Sans', sans-serif;
+    -ms-text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+    font-weight: 400;
+    font-size: 16px;
+}
+iz-app,
+body {
+    margin: 0px;
+    padding: 0px;
+    height: 100%;
+    background-color: #212121;
+    color: #fff;
+}
+iz-app /deep/ .font-special {
+    font-family: 'Oswald', sans-serif;
+}
+iz-app /deep/ core-header-panel {
+    height: 100%;
+}
+iz-app /deep/ core-header-panel[mode=cover]::shadow #mainContainer {
+    left: 70px;
+}
+iz-app /deep/ .core-header {
+    height: 60px;
+    font-size: 18px;
+    padding: 0 10px;
+    transition: height 0.2s;
+    background-color: #424b4b;
+    color: #bdced7;
+}
+iz-app /deep/ .core-header a {
+    color: #bdced7;
+}
+iz-app /deep/ .core-header paper-item {
+    padding: 7px 20px;
+    font-size: 18px;
+}
+iz-app /deep/ .core-header.tall {
+    height: 180px;
+}
+iz-app /deep/ .core-header.medium-tall {
+    height: 120px;
+}
+iz-app /deep/ .core-header /deep/ core-menu-button a {
+    color: #444;
+}
+iz-app /deep/ .content {
+    background: linear-gradient(#d6e3e7, #add8e6);
+}
+iz-app /deep/ .wrapper {
+    text-align: center;
+}
+iz-app /deep/ section {
+    text-align: center;
+    padding: 40px 0px;
+}
+iz-app /deep/ section[hero] {
+    background-color: #2c2f2f;
+}
+iz-app /deep/ h1,
+iz-app /deep/ h2,
+iz-app /deep/ h3,
+iz-app /deep/ h4,
+iz-app /deep/ h5,
+iz-app /deep/ h6 {
+    font-weight: 400;
+    margin: 0px;
+    padding: 0px;
+}
+iz-app /deep/ h1,
+iz-app /deep/ h3,
+iz-app /deep/ h5 {
+    font-family: 'Oswald', sans-serif;
+}
+iz-app /deep/ h1 {
+    font-size: 60px;
+    margin: 30px 0px;
+}
+iz-app /deep/ h2 {
+    color: #fff;
+    font-size: 40px;
+    margin: 20px 0px;
+}
+iz-app /deep/ h3 {
+    font-size: 25px;
+    margin: 15px 0px;
+}
+iz-app /deep/ h4 {
+    font-size: 20px;
+}
+iz-app /deep/ a {
+    color: #fff;
+    text-decoration: none;
+}
+iz-app /deep/ a:hover {
+    text-decoration: underline;
+}
+iz-app /deep/ .core-header /deep/ a:hover {
+    text-decoration: none;
+}
+iz-app /deep/ #ripple,
+iz-app /deep/::shadow #ripple {
+    color: #a7d6d7;
+}
+iz-app /deep/ paper-button {
+    margin: 2px;
+}
+iz-app /deep/ paper-button[link] {
+    text-decoration: underline;
+}
+iz-app /deep/ paper-button[disabled] {
+    color: #272929 !important;
+    background: #4e5151 !important;
+}
+iz-app /deep/ paper-button[raised] {
+    color: #212121;
+}
+iz-app /deep/ paper-button #ripple,
+iz-app /deep/ paper-button::shadow #ripple {
+    color: #a6a6a6;
+}
+iz-app /deep/ paper-button[primary] {
+    color: #3b8183;
+}
+iz-app /deep/ paper-button[primary] #ripple,
+iz-app /deep/ paper-button[primary]::shadow #ripple {
+    color: #a7d6d7;
+}
+iz-app /deep/ paper-button[primary][raised] {
+    background-color: #3b8183;
+    color: #fff;
+}
+iz-app /deep/ paper-button[primary][raised] #ripple,
+iz-app /deep/ paper-button[primary][raised]::shadow #ripple {
+    color: #326e6f;
+}
+iz-app /deep/ paper-button[secondary] {
+    color: #4db6ac;
+}
+iz-app /deep/ paper-button[secondary] #ripple,
+iz-app /deep/ paper-button[secondary]::shadow #ripple {
+    color: #b8e2de;
+}
+iz-app /deep/ paper-button[secondary][raised] {
+    background-color: #4db6ac;
+    color: #fff;
+}
+iz-app /deep/ paper-button[secondary][raised] #ripple,
+iz-app /deep/ paper-button[secondary][raised]::shadow #ripple {
+    color: #409c93;
+}
+iz-app /deep/ paper-button[success] {
+    color: #8bc34a;
+}
+iz-app /deep/ paper-button[success] #ripple,
+iz-app /deep/ paper-button[success]::shadow #ripple {
+    color: #d1e7b7;
+}
+iz-app /deep/ paper-button[success][raised] {
+    background-color: #8bc34a;
+    color: #fff;
+}
+iz-app /deep/ paper-button[success][raised] #ripple,
+iz-app /deep/ paper-button[success][raised]::shadow #ripple {
+    color: #77ac39;
+}
+iz-app /deep/ paper-button[info] {
+    color: #424b4b;
+}
+iz-app /deep/ paper-button[info] #ripple,
+iz-app /deep/ paper-button[info]::shadow #ripple {
+    color: #b0baba;
+}
+iz-app /deep/ paper-button[info][raised] {
+    background-color: #424b4b;
+    color: #fff;
+}
+iz-app /deep/ paper-button[info][raised] #ripple,
+iz-app /deep/ paper-button[info][raised]::shadow #ripple {
+    color: #384040;
+}
+iz-app /deep/ paper-button[warning] {
+    color: #fadd60;
+}
+iz-app /deep/ paper-button[warning] #ripple,
+iz-app /deep/ paper-button[warning]::shadow #ripple {
+    color: #fdf1bf;
+}
+iz-app /deep/ paper-button[warning][raised] {
+    background-color: #fadd60;
+    color: #fff;
+}
+iz-app /deep/ paper-button[warning][raised] #ripple,
+iz-app /deep/ paper-button[warning][raised]::shadow #ripple {
+    color: #f8d22e;
+}
+iz-app /deep/ paper-button[error] {
+    color: #ff7043;
+}
+iz-app /deep/ paper-button[error] #ripple,
+iz-app /deep/ paper-button[error]::shadow #ripple {
+    color: #ffc6b4;
+}
+iz-app /deep/ paper-button[error][raised] {
+    background-color: #ff7043;
+    color: #fff;
+}
+iz-app /deep/ paper-button[error][raised] #ripple,
+iz-app /deep/ paper-button[error][raised]::shadow #ripple {
+    color: #ff4b13;
+}
+iz-app /deep/ paper-button[link] {
+    color: #000;
+}
+iz-app /deep/ paper-button[link] #ripple,
+iz-app /deep/ paper-button[link]::shadow #ripple {
+    color: #999;
+}
+iz-app /deep/ paper-button[link][raised] {
+    background-color: #fff;
+    color: #000;
+}
+iz-app /deep/ paper-button[link][raised] #ripple,
+iz-app /deep/ paper-button[link][raised]::shadow #ripple {
+    color: #d9d9d9;
+}
+iz-app /deep/ paper-checkbox {
+    padding: 20px;
+}
+iz-app /deep/ paper-checkbox::shadow #ink {
+    color: #424b4b;
+    /* Change the ink color for checked state */
+}
+iz-app /deep/ paper-checkbox::shadow #ink[checked] {
+    color: #fff;
+}
+iz-app /deep/ paper-checkbox::shadow #checkbox {
+    border-color: #424b4b;
+    /* Change the checkbox checked color */
+}
+iz-app /deep/ paper-checkbox::shadow #checkbox.checked {
+    border-color: #fff;
+}
+iz-app /deep/ paper-fab {
+    background-color: #3b8183;
+}
+iz-app /deep/ paper-fab::shadow core-icon {
+    color: #fff !important;
+}
+iz-app /deep/ core-toolbar paper-tabs {
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+iz-app /deep/ paper-tabs,
+iz-app /deep/ core-toolbar {
+    background-color: #424b4b;
+    color: #bdced7;
+    -webkit-box-shadow: 0px 3px 2px rgba(0,0,0,0.2);
+    box-shadow: 0px 3px 2px rgba(0,0,0,0.2);
+}
+iz-app /deep/ paper-tabs.transparent-teal {
+    background-color: transparent;
+    color: #424b4b;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+iz-app /deep/ paper-tabs.transparent-teal::shadow #selectionBar {
+    background-color: #424b4b;
+}
+iz-app /deep/ paper-tabs.transparent-teal paper-tab::shadow #ink {
+    color: #424b4b;
+}
+iz-app /deep/ paper-tabs[noink][nobar] paper-tab.core-selected {
+    color: #3b8183;
+}
+iz-app /deep/ paper-tabs::shadow * {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+    -webkit-touch-callout: none;
+}
+iz-app /deep/ paper-tabs::shadow #selectionBar {
+    background-color: #3b8183;
+}
+iz-app /deep/ paper-tab::shadow #ink {
+    color: #3b8183;
+}
+iz-app /deep/ paper-toast {
+    background: #323232;
+    color: #f1f1f1;
+    text-align: left;
+}
+iz-app /deep/ paper-toast .highlight {
+    color: #424b4b;
+}
+iz-app /deep/ paper-toast::shadow * {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+    -webkit-touch-callout: none;
+}
+iz-app /deep/ paper-input[focused] .floated-label {
+    color: #3b8183;
+}
+iz-app /deep/ paper-input[focused] .error-text,
+iz-app /deep/ paper-input[focused] .error-icon {
+    color: #ff7043;
+}
+iz-app /deep/ paper-input .focused-underline {
+    background-color: #fff;
+}
+iz-app /deep/ paper-input.invalid .focused-underline {
+    background-color: #ff7043;
+}
+iz-app /deep/ paper-input.invalid[focused] .floated-label {
+    color: #ff7043;
+}
+iz-app /deep/ paper-input[disabled] {
+    color: #4e5151;
+}
+iz-app /deep/ .toolbar {
+    color: #bdced7;
+    background: #424b4b;
+}
+iz-app /deep/ .card {
+    background: #212121;
+}
+iz-app /deep/ paper-menu-button paper-item {
+    color: #fff;
+}
+iz-app /deep/ paper-menu-button paper-item:hover {
+    background-color: #424b4b;
+}
+iz-app /deep/ paper-menu-button::shadow #menu {
+    color: #fff;
+}
+iz-app /deep/ paper-menu-button::shadow .paper-menu-button-overlay-bg {
+    background-color: #373e3e;
+}
+iz-app /deep/ .small {
+    font-size: 12px;
+}
+iz-app /deep/ .logo {
+    font-size: 21px;
+}
+iz-app /deep/ .logo a {
+    font-weight: 700;
+    color: #bdced7;
+}
+iz-app /deep/ .inverse {
+    background-color: #7ec0ee;
+    color: #fff;
+}
+iz-app /deep/ paper-progress::shadow #activeProgress {
+    background-color: #3b8183;
+}
+iz-app /deep/ paper-progress::shadow #secondaryProgress {
+    background-color: #4db6ac;
+}
+iz-app /deep/ paper-radio-button::shadow #ink {
+    color: #a7d6d7;
+}
+iz-app /deep/ paper-radio-button::shadow #ink[checked] {
+    color: #a7d6d7;
+}
+iz-app /deep/ paper-radio-button::shadow #onRadio {
+    background-color: #fff;
+}
+iz-app /deep/ paper-radio-button::shadow #offRadio {
+    background-color: #424b4b;
+}
+iz-app /deep/ paper-toggle-button::shadow paper-radio-button::shadow #ink {
+    color: #a7d6d7;
+}
+iz-app /deep/ paper-toggle-button::shadow paper-radio-button::shadow #ink[checked] {
+    color: #a7d6d7;
+}
+iz-app /deep/ paper-toggle-button::shadow paper-radio-button::shadow #onRadio {
+    background-color: #fff;
+}
+iz-app /deep/ paper-toggle-button::shadow paper-radio-button::shadow #offRadio {
+    background-color: #424b4b;
+}
+iz-app /deep/ paper-toggle-button::shadow #toggleBar {
+    background-color: #fff;
+}
+iz-app /deep/ paper-toggle-button::shadow #toggleBar[checked] {
+    background-color: #424b4b;
+}
+iz-app /deep/ paper-slider::shadow #sliderBar::shadow #activeProgress {
+    background-color: #3b8183;
+}
+iz-app /deep/ paper-slider::shadow #sliderBar::shadow #secondaryProgress {
+    background-color: #4db6ac;
+}
+iz-app /deep/ paper-slider::shadow #sliderKnobInner {
+    background-color: #3b8183;
+}
+iz-app /deep/ paper-slider::shadow #sliderKnobInner::before {
+    background-color: #3b8183;
+}
+
+iz-app::shadow core-icon {
+    color: #bdced7;
+}
+
+iz-app /deep/ paper-icon-button[disabled]::shadow core-icon {
+    color: #4e5151 !important;
+}
+iz-app /deep/ h1,
+iz-app /deep/ h3,
+iz-app /deep/ h5 {
+    text-transform: uppercase;
+}
+
+iz-app /deep/ input{
+    color:#bdced7;
+}
+
+iz-app /deep/ h1{
+    font-size: 22px
+}
+
+iz-app /deep/ h2 {
+    font-size: 16px;
+}
+
+@media screen and (max-width: 1000px) {
+    iz-app /deep/ h2 {
+        display: none;
+    }
+}
+
+#params{
+    display: none;
+}

@@ -5,11 +5,10 @@ import 'package:paper_elements/paper_toast.dart';
 import 'package:core_elements/core_drawer_panel.dart';
 import 'package:browser_detect/browser_detect.dart';
 import 'dart:html';
-import 'dart:async';
 import 'dart:js';
 
 
-import 'package:inputzone/iz_register.dart';
+import 'package:inputzone/view/iz_register.dart';
 import 'inputzone.dart';
 
 @CustomTag('iz-app')
@@ -24,6 +23,7 @@ class IzApp extends PolymerElement {
   @observable bool browserSupportFS = false;
   @observable bool forcePersistent = false;
   
+  @published String name="app";
   @published String inputExt="*/*";
   @published String pnaclbin="";
   @published String emscrbin="";
@@ -31,6 +31,8 @@ class IzApp extends PolymerElement {
   @observable var runtime = RUNTIMETYPE.EMSCR;
   @observable String t_e_l;
   @observable bool compliantBrowser = true;
+  
+  DivElement iz_params_content = null;
   
   EmbedElement embed;
   JsObject pnaclProxy;
@@ -52,6 +54,8 @@ class IzApp extends PolymerElement {
 
   
   IzApp.created() : super.created(){ 
+    children.add(new Element.tag('ins')..classes.add('adsbygoogle')..style.display='block'..attributes.addAll({'data-ad-client':'ca-pub-2271315733763825',
+      'data-ad-slot':'5683998192', 'data-ad-format':'auto'}) );
     iz_app = this;
     detectBrowser();
     if(currentBrowser== BROWSER.INTERNETEXPLORER || currentBrowser== BROWSER.OPERA)
@@ -123,6 +127,8 @@ class IzApp extends PolymerElement {
               _outOfQuotaDialog.toggle();
         })
       );
+      iz_params_content = querySelector('#params');
+
       
   }
   
@@ -136,7 +142,7 @@ class IzApp extends PolymerElement {
          infoWorker = new Worker(emscrbin);
                infoWorker.onMessage.first.then((MessageEvent e){
                  initialized=true;
-                 infoWorker.onMessage.listen(onEMSCREstimatedOutputSizeReceived);
+                 infoWorker.onMessage.listen(onEMSCRPrerunReceived);
                });
                infoWorker.postMessage(new WorkerPostMessage("workerReady",0,[]));  
        } 
@@ -144,7 +150,6 @@ class IzApp extends PolymerElement {
          embed= new EmbedElement()..type="application/x-pnacl"..src=pnaclbin..width='0'..height='0'..id='pnacl'..onLoad.listen((_){
            initialized=true;
                embed.on['message'].listen((s){
-                 //print("new message:"+(s as MessageEvent).data.toString());
                  var msg = new TaskMessage.FromNACLMessage((s as MessageEvent).data.toString());
                  if(msg.id!=0){
                    tasks[msg.id].handleTaskMessage(msg);
@@ -185,7 +190,6 @@ class IzApp extends PolymerElement {
    
    void newInput(File file){
      var url = Url.createObjectUrl(file);
-     print(url);
      FileTask task;
      if(iz_app.runtime == RUNTIMETYPE.PNACL)
        task = new PNaclTask(file.name, url, file.size, pnaclProxy);
@@ -193,7 +197,7 @@ class IzApp extends PolymerElement {
        task = new EmscrTask(file.name, url, file.size, new Worker(emscrbin));
 
      addTask(task);
-     estimateOutputSize(task);
+     prerun(task);
        
 
    }
@@ -206,20 +210,20 @@ class IzApp extends PolymerElement {
      tasks.remove(tasks[int.parse(details)]);
    }
    
-   void estimateOutputSize(FileTask task){
+   void prerun(FileTask task){
      if(iz_app.runtime == RUNTIMETYPE.EMSCR)
-       infoWorker.postMessage(new WorkerPostMessage.fromString("estimateOutputSize",task.id,task.inputSize.toString()));
+       infoWorker.postMessage(new WorkerPostMessage.fromString("prerunRequest",task.id,'type\n'+MESSAGETYPE.PRERUN.toString()+'\nid\n'+task.id.toString()+'\nurl\n'+task.input_file_url
+           +'\nfilename\n'+task.filename+'\nsize\n'+task.inputSize.toString()));
      else{
-       pnaclProxy.callMethod('postMessage', ['type\n'+MESSAGETYPE.ESTIMATESIZE.toString()+'\nid\n'+task.id.toString()+'\ninputSize\n'+task.inputSize.toString()]);
+       pnaclProxy.callMethod('postMessage', ['type\n'+MESSAGETYPE.PRERUN.toString()+'\nid\n'+task.id.toString()+'\nurl\n'+task.input_file_url
+                                             +'\nfilename\n'+task.filename+'\nsize\n'+task.inputSize.toString()]);
      }
    }
    
-   void onEMSCREstimatedOutputSizeReceived(MessageEvent msgEvent){
+   void onEMSCRPrerunReceived(MessageEvent msgEvent){
      var wmsg = new WorkerReceivedMessage.fromJSON(msgEvent.data);
      int id_target = wmsg.callbackId;
-     int size = int.parse(wmsg.message());
-     tasks[id_target].estimatedOutputSize = size;
-     iz_app.querySpaceAndRun(tasks[id_target]);
+     tasks[id_target].handleTaskMessage(new TaskMessage(id_target,MESSAGETYPE.PRERUN.toString(),wmsg.message()));
    }
    
    void showCompleteToast(int id){
@@ -227,7 +231,6 @@ class IzApp extends PolymerElement {
    }
    
    void onPTDownloadClick(Event e, var detail, Node target){
-     //print('id'+(e.target as DivElement).id);
      int id = int.parse((e.target as DivElement).id.substring(2));
      iz_app.downloadTaskOutput(tasks[id]);
    }
@@ -247,15 +250,16 @@ class IzApp extends PolymerElement {
                   (int received_size){
                      availablePersSpace = received_size;
                      fs_pers_status = FS_PERS_STATUS.OPENED;
-                     this.tasks.forEach((k,v){
-                       if((v as FileTask).status_id.toString()==STATUSTYPE.WAITINGQUOTA.toString())
-                         querySpaceAndRun(v);
-                           });
-                         }, (e) {
-                           print(e); 
-                           availableTempSpace =0;
-                           }
-                         );
+                     if(iz_params_content == null)
+                       this.tasks.forEach((k,v){
+                         if((v as FileTask).status_id.toString()==STATUSTYPE.WAITINGQUOTA.toString())
+                           querySpaceAndRun(v);
+                             });
+                           }, (e) {
+                             print(e); 
+                             availableTempSpace =0;
+                             }
+                           );
               break;
             case FS_PERS_STATUS.OPENING:
               taskToRun.updateStatus(STATUSTYPE.WAITINGQUOTA.toString());

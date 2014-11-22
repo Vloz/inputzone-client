@@ -1,0 +1,121 @@
+<link rel="import" href="../../../packages/polymer/polymer.html">
+<link rel="import" href="../../../packages/paper_elements/paper_progress.html">
+<link rel="import" href="../../../packages/paper_elements/paper_icon_button.html">
+<link rel="import" href="../../../packages/paper_elements/paper_item.html">
+<link rel="import" href="../../../packages/paper_elements/paper_dropdown_menu.html">
+<link rel="import" href="../../../packages/core_elements/av_icons.html">
+<link rel="import" href="../../../packages/core_elements/core_icons.html">
+<link rel="import" href="../../../packages/core_elements/core_tooltip.html">
+<link rel="import" href="iz_ellipsis.html">
+<link rel="import" href="iz_params.html">
+
+<polymer-element name="iz-output">
+  <template>
+      <style>
+          :host{
+              background-color:white;
+              color: #666;
+              margin: 10px 0;
+              border-radius: 3px;
+          }
+
+          @media screen and (min-width: 720px) {
+              :host{
+                  width: 720px;
+              }
+          }
+
+          @media screen and (max-width: 719px) {
+              :host{
+                  width: 360px;
+              }
+
+              #presetbar{
+                  display: none;
+              }
+          }
+
+          core-tooltip.fancy::shadow .core-tooltip {
+              opacity: 0;
+              -webkit-transition: all 300ms cubic-bezier(0,1.92,.99,1.07);
+              transition: all 300ms cubic-bezier(0,1.92,.99,1.07);
+              -webkit-transform: translate3d(0, -10px, 0);
+              transform: translate3d(0, -10px, 0);
+          }
+
+          core-tooltip.fancy:hover::shadow .core-tooltip,
+          core-tooltip.fancy:focus::shadow .core-tooltip {
+              opacity: 1;
+              -webkit-transform: translate3d(0, 0, 0);
+              transform: translate3d(0, 0, 0);
+          }
+
+
+          .outputError #status{
+              color: #ff7043;
+          }
+
+          .outputError paper-progress::shadow #activeProgress {
+              background-color: #ff7043;
+          }
+
+          .outputError paper-progress::shadow #secondaryProgress {
+              background-color: #ffcbb3;
+          }
+
+          .outputCancel #status{
+              color: #312e2e;
+          }
+
+          .outputCancel paper-progress::shadow #activeProgress {
+              background-color: #312e2e;
+          }
+
+          .outputCancel paper-progress::shadow #secondaryProgress {
+              background-color: #7d7f7d;
+          }
+
+          .outputWaitingClick paper-progress::shadow #progressContainer{
+              background-color: #eee;
+          }
+
+          core-icon{
+              width: 14px;
+          }
+          #paramsdrawer{
+              height: 0;
+              display: none;
+              transition-property: height;
+          }
+
+          paper-icon-button[disabled] {
+              opacity: 0.5;
+          }
+      </style>
+      <div id="paramsdrawer"></div>
+      <div class="{{context.status_id == 0 ? 'outputCancel':''}} {{context.status_id == 5 ? 'outputError':''}} {{context.status_id == 9 ? 'outputWaitingClick':''}}" style="padding: 10px 5px; min-height: 50px;  color: #666; border-radius: 2px;" center horizontal layout>
+          <core-tooltip large role="tooltip" class="fancy" label="Set custom task settings" position="top">
+              <paper-icon-button icon="settings" hidden?="{{!hasParams}}" role="button" tabindex="0" aria-label="arrow-back" on-click="{{SettingsClicked}}"></paper-icon-button>
+          </core-tooltip>
+          <core-tooltip large show="{{context.downloaded}}" role="tooltip" class="fancy" label="{{context.status_id==9?'Run the task':context.status_id==0||context.status_id==4||context.status_id==5||context.status_id==8?'Please purge once the download is done':''}}" position="top">
+            <paper-icon-button icon="{{context.status_id==9?'av:play-circle-fill':(context.status_id==0||context.status_id==5||context.status_id==8||context.status_id==4?'delete':'cancel')}}" role="button" tabindex="1" aria-label="arrow-back" on-click="{{ResumeORCancelORDeleteClicked}}"></paper-icon-button>
+          </core-tooltip>
+          <div vertical around-justified layout center flex>
+              <div style="font-size: 0.75em">{{context.filename}}</div>
+              <paper-progress value="{{context.progress}}" secondaryprogress="{{context.preprogress}}" style="width: 100%;"></paper-progress>
+              <div id="status" style="font-size:0.7em;">
+                  <b>{{context.status}}
+                      <template if="{{context.status_id==4}}">
+                          Finished, click <core-icon style="width: 14px" icon="file-download"></core-icon> to retrieve the file.
+                      </template>
+                      <template if="{{context.status_id==9}}">
+                          Click <core-icon style="width: 14px" icon="av:play-circle-fill"></core-icon> to start the task.
+                      </template>
+                      <iz-ellipsis hidden?="{{context.status_id==0 || context.status_id==4 ||context.status_id==5 || context.status_id==9}}"></iz-ellipsis></b> {{context.details}}</div>
+          </div>
+        <paper-icon-button icon="file-download" role="button" tabindex="2" aria-label="arrow-back" disabled?="{{context.status_id!=4}}" on-click="{{DownloadClicked}}"></paper-icon-button>
+      </div>
+
+  </template>
+  <script type="application/dart" src="iz_output.dart"></script>
+</polymer-element>

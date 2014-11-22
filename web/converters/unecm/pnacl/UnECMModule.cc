@@ -155,9 +155,78 @@ public:
     static int64_t estimateOutputSize(int64_t inputSize){
         return 700*1024*1024; //approximate size of a psx iso
     }
+    static std::string baseParameters(uint64_t taskId, std::string inputFullPath, uint64_t inputSize, std::string outputDirectoryPath, std::string baseName, std::string inputExtension){
+        return "\\\""+inputFullPath+"\\\" \\\""+outputDirectoryPath+baseName+"\\\"";
+    }
 private:
 
-    virtual int32_t Convert(double taskId, FILE* input, uint64_t inputSize, std::string directoryPath, std::string baseName, std::string inputExtension) {
+    int main(int argc, char **argv) {
+        FILE *fin, *fout;
+        char *infilename;
+        char *outfilename;
+        /*
+        ** Initialize the ECC/EDC tables
+        */
+        eccedc_init();
+        /*
+        ** Check command line
+        */
+        if((argc != 2) && (argc != 3)) {
+            Error("usage:"+std::string(argv[0])+" ecmfile [outputfile]");
+            return 1;
+        }
+        /*
+        ** Verify that the input filename is valid
+        */
+        infilename = argv[1];
+        if(strlen(infilename) < 5) {
+            Error("filename '"+std::string(infilename)+"' is too short");
+            return 1;
+        }
+        if(strcasecmp(infilename + strlen(infilename) - 4, ".ecm")) {
+            Error("filename must end in .ecm");
+            return 1;
+        }
+        /*
+        ** Figure out what the output filename should be
+        */
+        if(argc == 3) {
+            outfilename = argv[2];
+        } else {
+            outfilename = (char*)malloc(strlen(infilename) - 3);
+            if(!outfilename) abort();
+            memcpy(outfilename, infilename, strlen(infilename) - 4);
+            outfilename[strlen(infilename) - 4] = 0;
+        }
+        Console("Decoding"+std::string(infilename)+" to "+std::string(outfilename)+".");
+        /*
+        ** Open both files
+        */
+        fin = fopen(infilename, "rb");
+        if(!fin) {
+            perror(infilename);
+            return 1;
+        }
+        fout = fopen(outfilename, "wb");
+        if(!fout) {
+            perror(outfilename);
+            fclose(fin);
+            return 1;
+        }
+        /*
+        ** Decode
+        */
+        setvbuf ( fout, NULL , _IOFBF , 32541536 );
+        unecmify(fin, fout);
+        /*
+        ** Close everything
+        */
+        fclose(fout);
+        fclose(fin);
+        return 0;
+    }
+
+/*    virtual int32_t Convert(double taskId, FILE* input, uint64_t inputSize, std::string directoryPath, std::string baseName, std::string inputExtension) {
         FILE *output;
         std::string outputFullPath = directoryPath+baseName;
         if((output=fopen(outputFullPath.c_str(), "wb")) == NULL) {
@@ -169,7 +238,7 @@ private:
         eccedc_init();
         return unecmify(input, output);
 
-    };
+    };*/
 
     void setcounter(unsigned long n) {
         if((n >> 20) != (mycounter >> 20)) {

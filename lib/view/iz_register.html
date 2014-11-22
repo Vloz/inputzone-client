@@ -1,0 +1,139 @@
+<link rel="import" href="../../../packages/polymer/polymer.html">
+<link rel="import" href="../../../packages/paper_elements/paper_ripple.html">
+<polymer-element name="iz-register">
+    <template layout vertical>
+        <style>
+            .tagdiv{
+                margin: 0 4px;
+            }
+        </style>
+        <template if="{{minify==false}}">
+            <style>
+                .entry{
+                    margin: 20px 10px;
+                    padding: 20px;
+                    min-height: 40px;
+                    background-color: #2c2f2f;
+                    border-radius: 3px;
+                    position: relative;
+                    max-width: 400px;
+                }
+
+                .chromeonly{
+                    background-image: url('/res/chrome.svg');
+                    background-position: 108% 13%;
+                    background-size: 19%;
+                    background-repeat: no-repeat;
+                }
+
+                .tag{
+                    font-size: 10px;
+                    padding: 4px 2px;
+                    width: 24px;
+                    height: 24px;
+                    line-height: 20px;
+                    margin: 6px;
+                }
+
+                .intag {
+                    color: #bdced7;
+                    outline-color: #bdced7;
+                    outline-width: 1px;
+                    outline-style: dashed;
+                }
+                .outag{
+                    background-color: white;
+                    color: #333;
+                    border-radius: 4px;
+                }
+
+                .chromeonlytxt{
+                    color: red;
+                    font-size: 9px;
+                    text-align: right;
+                }
+
+                .desc{
+                    text-align: justify;
+                    color: #777;
+                    font-style: italic;
+                }
+
+            </style>
+            <template repeat="{{entry in entries}}">
+
+                <div class="entry {{entry.emscr?'':'chromeonly'}}">
+                    <a _href="{{'http://input.zone'+entry.url}}">{{'http://input.zone'+entry.url}}</a>
+                    <div id="{{entry.cname}}" layout horizontal center wrap>
+                        <div class="tagdiv" horizontal layout>
+                            <template repeat="{{tag in entry.intag}}"><div class="tag intag"> {{tag}}</div> </template>
+                            <template repeat="{{tag in entry.outag}}"><div class="tag outag"> {{tag}} </div></template>
+                        </div>
+                    </div>
+                    <div class="desc">
+                        {{entry.desc}}
+                    </div>
+                    <div hidden?="{{entry.emscr!=''}}">Only run on chrome for desktop</div>
+                </div>
+            </template>
+        </template>
+        <template if="{{minify==true}}">
+            <style>
+                .tag {
+                    font-size: 10px;
+                    padding: 2px 4px;
+                    height: 15px;
+                    line-height: 16px;
+                    margin: 3px;
+                    text-align: center;
+                }
+                .entry {
+                    margin: 17px;
+                    padding: 5px 15px;
+                    min-height: 40px;
+                    cursor: pointer;
+                    background-color: #2c2f2f;
+                    border-radius: 3px;
+                    position: relative;
+                }
+                .chromeonly {
+                    background-image: url('/res/chrome.svg');
+                    background-position: 110% 53%;
+                    background-size: 42%;
+                    background-repeat: no-repeat;
+                }
+                .intag {
+                    color: #bdced7;
+                    outline-color: #bdced7;
+                    outline-width: 1px;
+                    outline-style: dashed;
+                }
+                .outag{
+                    background-color: white;
+                    color: #333;
+                    border-radius: 4px;
+                }
+                .entry:hover>.name{
+                    text-decoration: underline;
+                }
+
+                .name{
+                    font-family: Oswald;
+                    font-size: 22px;
+                    margin: 0 4px;
+                }
+            </style>
+            <template repeat="{{entry in entries}}">
+                <div id="{{entry.cname}}" class="entry {{entry.emscr?'':'chromeonly'}}" on-click="{{onEntryClick}}" vertical layout>
+                    <div class="name">{{entry.cname}}</div>
+                    <div layout horizontal wrap>
+                        <template repeat="{{tag in entry.intag}}"><div class="tag intag"> {{tag}}</div> </template>
+                        <template repeat="{{tag in entry.outag}}"><div class="tag outag"> {{tag}} </div></template>
+                    </div>
+                    <paper-ripple fit></paper-ripple>
+                </div>
+            </template>
+        </template>
+    </template>
+    <script type="application/dart" src="iz_register.dart"></script>
+</polymer-element>

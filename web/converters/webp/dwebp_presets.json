@@ -1,0 +1,9 @@
+[
+  {"name":"png output","value":"-dither 0","output_ext":".png"},
+  {"name":"tiff output","value":"-dither 0 -tiff","output_ext":".tiff"},
+  {"name":"bmp output","value":"-dither 0 -bmp","output_ext":".bmp"},
+  {"name":"pam output","value":"-dither 0 -pam","output_ext":".pam"},
+  {"name":"ppm output","value":"-dither 0 -ppm","output_ext":".ppm"},
+  {"name":"pgm output","value":"-dither 0 -pgm","output_ext":".pgm"},
+  {"name":"yuv output","value":"-dither 0 -yuv","output_ext":".yuv"}
+]

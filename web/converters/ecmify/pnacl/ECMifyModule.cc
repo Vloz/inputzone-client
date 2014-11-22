@@ -240,9 +240,69 @@ public:
     static int64_t estimateOutputSize(int64_t inputSize){
         return 700*1024*1024; //approximate size of a psx iso
     }
+
+    static std::string baseParameters(uint64_t taskId, std::string inputFullPath, uint64_t inputSize, std::string outputDirectoryPath, std::string baseName, std::string inputExtension){
+        return "\\\""+inputFullPath+"\\\" \\\""+outputDirectoryPath+baseName+inputExtension+".ecm\\\"";
+    }
 private:
 
-    virtual int32_t Convert(double taskId, FILE* input, uint64_t inputSize, std::string directoryPath, std::string baseName, std::string inputExtension) {
+    int main(int argc, char **argv) {
+        FILE *fin, *fout;
+        char *infilename;
+        char *outfilename;
+        /*
+        ** Initialize the ECC/EDC tables
+        */
+        eccedc_init();
+        /*
+        ** Check command line
+        */
+        if((argc != 2) && (argc != 3)) {
+            Error("usage: "+std::string(argv[0])+" cdimagefile [ecmfile]");
+            return 1;
+        }
+        infilename = argv[1];
+        /*
+        ** Figure out what the output filename should be
+        */
+        if(argc == 3) {
+            outfilename = argv[2];
+        } else {
+            outfilename = (char*)malloc(strlen(infilename) + 5);
+            if(!outfilename) abort();
+            sprintf(outfilename, "%s.ecm", infilename);
+        }
+        Console("Encoding"+std::string(infilename)+" to "+std::string(outfilename)+".");
+        /*
+        ** Open both files
+        */
+        fin = fopen(infilename, "rb");
+        if(!fin) {
+            perror(infilename);
+            Error("Can't open input file!");
+            return 1;
+        }
+        fout = fopen(outfilename, "wb");
+        if(!fout) {
+            perror(outfilename);
+            fclose(fin);
+            Error("Can't open output file!");
+            return 1;
+        }
+        /*
+        ** Encode
+        */
+        setvbuf ( fout, NULL , _IOFBF , 32541536 );
+        ecmify(fin, fout);
+        /*
+        ** Close everything
+        */
+        fclose(fout);
+        fclose(fin);
+        return 0;
+    }
+
+   /* virtual int32_t Convert(double taskId, FILE* input, uint64_t inputSize, std::string directoryPath, std::string baseName, std::string inputExtension) {
         FILE *output;
 
 
@@ -256,7 +316,7 @@ private:
         setvbuf ( output, NULL , _IOFBF , 32541536 );
 
         return ecmify(input, output);
-    };
+    };*/
 
     unsigned in_flush(
             unsigned edc,
