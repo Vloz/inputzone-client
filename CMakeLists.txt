@@ -7,3 +7,6 @@ project(inputzone)
 #include(cmake/pnacl.cmake)
 
 include(cmake/pnacl_webp.cmake)
+
+
+#include(lib/pnacl/thirdparty/libwebp.cmake)

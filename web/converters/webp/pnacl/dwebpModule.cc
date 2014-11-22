@@ -33,9 +33,9 @@
 #include <wincodec.h>
 #endif
 
-#include "webplib/webp/decode.h"
-#include "webplib/example_util.h"
-#include "webplib/stopwatch.h"
+#include "webp/decode.h"
+#include "shared/example_util.h"
+#include "shared/stopwatch.h"
 
 static int verbose = 0;
 #ifndef WEBP_DLL

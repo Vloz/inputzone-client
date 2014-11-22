@@ -1,5 +1,3 @@
-set(PNACL_PROGRAMS cwebp dwebp)
-
 include( CMakeForceCompiler )
 
 
@@ -76,16 +74,15 @@ add_library(
     lib/pnacl/IzLib/include/FileConverter.h lib/pnacl/IzLib/include/IzInstance.h lib/pnacl/IzLib/include/InputDownloader.h
 )
 
-foreach(PROGRAM ${PNACL_PROGRAMS})
 
-message( "Building converter : ${SOURCE_FILES}" )
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/web/converters/webp/bin")
-file(GLOB_RECURSE SOURCE_FILES ${CMAKE_SOURCE_DIR}/web/converters/webp/pnacl/webplib/*)
+file(GLOB_RECURSE SOURCE_FILES ${CMAKE_SOURCE_DIR}/web/converters/webp/pnacl/shared/*)
 
 
 
-MESSAGE(POST_BUILD COMMAND "python" "$ENV{NACL_SDK_ROOT}/tools/create_nmf.py" $<TARGET_FILE:${_target}> $<$<CONFIG:Debug>:"${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${PROGRAM}.bc"> > $<TARGET_FILE:${_target}>.nmf
-                                $<$<CONFIG:Debug>:--pnacl-debug-optlevel=0> VERBATIM)
+#MESSAGE(POST_BUILD COMMAND "python" "$ENV{NACL_SDK_ROOT}/tools/create_nmf.py" $<TARGET_FILE:${_target}> $<$<CONFIG:Debug>:"${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cwebp.bc"> > $<TARGET_FILE:${_target}>.nmf
+#                                $<$<CONFIG:Debug>:--pnacl-debug-optlevel=0> VERBATIM)
+set(PROGRAM cwebp)
 add_executable(${PROGRAM} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/web/converters/webp/pnacl/${PROGRAM}Module.cc)
 set_target_properties(${PROGRAM} PROPERTIES OUTPUT_NAME ${PROGRAM}${PLATFORM_EXE_SUFFIX})
 set_target_properties(${PROGRAM} PROPERTIES COMPILE_DEFINITIONS "WEBP_HAVE_JPEG=1;WEBP_HAVE_PNG=1;WEBP_HAVE_TIFF=1")
@@ -93,13 +90,24 @@ target_link_libraries(
 
         ${PROGRAM} IzLib
 
-        ppapi_cpp ppapi_stub pthread nacl_io jpeg png z tiff
+        ppapi_cpp ppapi_stub pthread nacl_io jpeg png z tiff webp
 
 )
 
-IF(CMAKE_BUILD_TYPE MATCHES "Debug")
-    pnacl_copy_llvm_bitcode(${PROGRAM})
-ENDIF(CMAKE_BUILD_TYPE MATCHES "Debug")
 pnacl_finalise(${PROGRAM})
 pnacl_nmf(${PROGRAM})
-endforeach()
+
+set(PROGRAM dwebp)
+add_executable(${PROGRAM} ${SOURCE_FILES} ${CMAKE_SOURCE_DIR}/web/converters/webp/pnacl/${PROGRAM}Module.cc)
+set_target_properties(${PROGRAM} PROPERTIES OUTPUT_NAME ${PROGRAM}${PLATFORM_EXE_SUFFIX})
+set_target_properties(${PROGRAM} PROPERTIES COMPILE_DEFINITIONS "WEBP_HAVE_PNG=1;WEBP_HAVE_TIFF=1")
+target_link_libraries(
+
+        ${PROGRAM} IzLib
+
+        ppapi_cpp ppapi_stub pthread nacl_io png z tiff webp
+
+)
+
+pnacl_finalise(${PROGRAM})
+pnacl_nmf(${PROGRAM})

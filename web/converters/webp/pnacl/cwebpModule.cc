@@ -16,17 +16,17 @@
 #include "webplib/webp/config.h"
 #endif
 
-#include "webplib/webp/encode.h"
+#include "webp/encode.h"
 
-#include "webplib/example_util.h"
-#include "webplib/metadata.h"
-#include "webplib/stopwatch.h"
+#include "shared/example_util.h"
+#include "shared/metadata.h"
+#include "shared/stopwatch.h"
 
-#include "webplib/jpegdec.h"
-#include "webplib/pngdec.h"
-#include "webplib/tiffdec.h"
-#include "webplib/webpdec.h"
-#include "webplib/wicdec.h"
+#include "shared/jpegdec.h"
+#include "shared/pngdec.h"
+#include "shared/tiffdec.h"
+#include "shared/webpdec.h"
+#include "shared/wicdec.h"
 
 #ifndef WEBP_DLL
 #ifdef __cplusplus

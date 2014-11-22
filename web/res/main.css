@@ -416,13 +416,7 @@ iz-app /deep/ paper-slider::shadow #sliderKnobInner::before {
     background-color: #3b8183;
 }
 
-iz-app::shadow core-icon {
-    color: #bdced7;
-}
 
-iz-app /deep/ paper-icon-button[disabled]::shadow core-icon {
-    color: #4e5151 !important;
-}
 iz-app /deep/ h1,
 iz-app /deep/ h3,
 iz-app /deep/ h5 {

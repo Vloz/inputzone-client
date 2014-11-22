@@ -91,6 +91,9 @@
           paper-icon-button[disabled] {
               opacity: 0.5;
           }
+          :host::shadow core-icon {
+              color: #575e65 !important;
+          }
       </style>
       <div id="paramsdrawer"></div>
       <div class="{{context.status_id == 0 ? 'outputCancel':''}} {{context.status_id == 5 ? 'outputError':''}} {{context.status_id == 9 ? 'outputWaitingClick':''}}" style="padding: 10px 5px; min-height: 50px;  color: #666; border-radius: 2px;" center horizontal layout>
