@@ -20,4 +20,8 @@
         <loc>http://input.zone/dwebp.html</loc>
         <changefreq>monthly</changefreq>
     </url>
+    <url>
+        <loc>http://input.zone/ffmpeg.html</loc>
+        <changefreq>monthly</changefreq>
+    </url>
 </urlset>

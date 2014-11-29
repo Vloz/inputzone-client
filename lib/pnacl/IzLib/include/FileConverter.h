@@ -62,16 +62,16 @@ protected:
     bool isCancelling_;
     uint64_t id_;
     uint64_t size_;
+    std::string mountPoint_;
+    pp::CompletionCallbackFactory<FileConverter>* callbackFactory_;
 private:
 
     pp::FileSystem *fileSystem_;
     pp::SimpleThread *thread_;
-    pp::CompletionCallbackFactory<FileConverter>* callbackFactory_;
 
     const std::string startMessage_;
     std::string url_;
     std::string filename_;
-    std::string mountPoint_;
     float currentProgress_;
     FSTYPE fstype_;
 private:

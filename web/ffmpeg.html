@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#323838">
+    <meta name="keywords" content="web, converters">
+    <title>InputZone - Web ffmpeg Beta</title>
+    <meta name="description" content="Convert mp4,webm,mkv,mp3 and others Audio/Video with your web browser without sending any data." />
+    <link rel="import" href="packages/polymer/polymer.html">
+    <script src="packages/browser/dart.js"></script>
+    <link rel="stylesheet" href="res/main.css" shim-shadowdom>
+    <link href="/res/icon.png" rel="shortcut icon"/>
+    <link rel="import" href="packages/inputzone/iz_app.html">
+</head>
+<body touch-action="auto" unresolved fullbleed>
+
+<iz-app name="ffmpeg" pnaclbin="converters/ffmpeg/bin/ffmpeg.pexe.nmf" inputExt="" chdir="/" isolated fit>
+    <h1>ffmpeg beta</h1>
+    <h2>Convert your video files</h2>
+    <short>Version 2.1.3 - Original code by ffmpegTeam licensed under LGPL 2.1 - </short>
+    <div id="params" data-presets="/converters/ffmpeg/ffmpeg_presets.json">
+    </div>
+</iz-app>
+<script type="application/dart">export 'package:polymer/init.dart';</script>
+</body>
+</html>

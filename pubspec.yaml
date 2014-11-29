@@ -14,3 +14,4 @@ transformers:
         - web/ecmify.html
         - web/cwebp.html
         - web/dwebp.html
+        - web/ffmpeg.html

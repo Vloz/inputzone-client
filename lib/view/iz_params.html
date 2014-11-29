@@ -51,7 +51,7 @@
 
         </style>
         <div>
-            <paper-dropdown-menu on-core-select="{{onChangePreset}}" id="presetmenu">
+            <paper-dropdown-menu disabled?="{{context.status_id!=9}}" on-core-select="{{onChangePreset}}" id="presetmenu">
                 <template repeat="{{preset in presets}}">
                     <paper-item label="{{preset.name}}"></paper-item>
                 </template>
@@ -62,7 +62,7 @@
             </content>
         </div>
         <div id="shell" horizontal layout>
-            <textarea flex spellcheck="false" value="{{context.params}}" id="t1"></textarea>
+            <textarea flex disabled?="{{context.status_id!=9}}" spellcheck="false" value="{{context.params}}" id="t1"></textarea>
         </div>
     </template>
     <script type="application/dart" src="iz_params.dart"></script>

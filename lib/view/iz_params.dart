@@ -61,7 +61,7 @@ class IzParams extends PolymerElement {
       _options.clear();
       if(presets[index].output_ext!=null)
         ouput_ext=presets[index].output_ext;
-      context.params= "./"+iz_app.name+" "+tBaseParam(context.baseParams)+" "+presets[index].value;
+      context.params= "./"+iz_app.name+" "+tParam(context.baseParams,presets[index].value);
       updateFromText();
     }
   }
@@ -81,7 +81,14 @@ class IzParams extends PolymerElement {
     });
     List<String> parts = new List<String>();
     RegExp exp = new RegExp("[^\\s\"']+|\"([^\"]*)\"");
-    exp.allMatches(context.params.substring(("./"+iz_app.name+" "+tBaseParam(context.baseParams)).length)).forEach((m){
+    String p ="";
+    if(context.baseParams.contains('%PARAMS%')){
+      int lastPartlength = context.baseParams.length - (tParam(context.baseParams,'%PARAMS%').indexOf("%PARAMS%")+8);
+      p= context.params.substring(tParam(context.baseParams,'%PARAMS%').indexOf("%PARAMS%"), context.params.length - lastPartlength);
+    } else
+      p = context.params.substring(tParam(context.baseParams,'').length);
+      
+    exp.allMatches(p).forEach((m){
       if (m.group(1) != null)
         parts.add(m.group(1).trim());// Add double-quoted string without the quotes
       else
@@ -224,14 +231,19 @@ class IzParams extends PolymerElement {
 //  }
   
   void updateParams(){
-    String s="./"+iz_app.name+" "+tBaseParam(context.baseParams)+" ";
+    String s='';
     _options.sort((o1,o2)=>o1.position.compareTo(o2.position));
     _options.forEach((option)=>s+= option.toString());
-    context.params=s;
+    context.params=tParam("./"+iz_app.name+" "+context.baseParams+" ", s);
   }
   
-  String tBaseParam(String s){
+  String tParam(String base, String otherparams){
+    String s = base;
     s= s.replaceAll('%OUTPUT_EXT%', ouput_ext);
+    if(s.contains('%PARAMS%'))
+      s= s.replaceAll('%PARAMS%', otherparams);
+    else
+      s+= otherparams;
     return s;
   }
   

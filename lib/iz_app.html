@@ -16,6 +16,7 @@
 <link rel="import" href="../../packages/paper_elements/paper_dialog_transition.html">
 <link rel="import" href="../../packages/paper_elements/paper_toast.html">
 <link rel="import" href="../../packages/paper_elements/paper_fab.html">
+<link rel="import" href="../../packages/paper_elements/paper_progress.html">
 <link rel="import" href="view/iz_output.html">
 <link rel="import" href="view/iz_ellipsis.html">
 <link rel="import" href="view/iz_register.html">
@@ -142,7 +143,7 @@
                     <core-icon style="margin: 10px 0 0 0" icon="search" self-center></core-icon>
                     <paper-input on-input="{{onSearchInput}}" label="Search..." flex></paper-input>
                 </div>
-                <div style="background-color: #0F1112" flex>
+                <div style="background-color: #0F1112;overflow-y: auto;" flex>
                     <iz-register id="register" minify="{{true}}"></iz-register>
                 </div>
                 <div style="opacity: 0.4;font-family: monospace; font-size: 10px;align-items: flex-end;padding: 10px" layout vertical>
@@ -185,8 +186,9 @@
                             </paper-toast>
                         </template>
 
-                        <div hidden?="{{initialized || (runtime.toString()=='0' && emscrbin=='')}}">
-                            <h3>LOADING<iz-ellipsis></iz-ellipsis></h3>
+                        <div class="boxMessage" hidden?="{{initialized || (runtime.toString()=='0' && emscrbin=='')}}">
+                            <h3 id="loadingMsg">LOADING<iz-ellipsis></iz-ellipsis></h3>
+                            <paper-progress hidden?="{{loadProgress==0}}" value="{{loadProgress}}"></paper-progress>
                         </div>
                         <div class="errorBoxMessage" hidden?="{{!(runtime.toString()=='0' && emscrbin=='' && compliantBrowser)}}">
                             <core-icon class="errorIcon" icon="error" ></core-icon>

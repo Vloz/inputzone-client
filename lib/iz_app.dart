@@ -22,11 +22,14 @@ class IzApp extends PolymerElement {
   @observable bool browserSupportPnacl=window.navigator.mimeTypes.any((mimetype)=> mimetype.type == 'application/x-pnacl');
   @observable bool browserSupportFS = false;
   @observable bool forcePersistent = false;
+  @observable int loadProgress = 0;
   
   @published String name="app";
   @published String inputExt="*/*";
   @published String pnaclbin="";
   @published String emscrbin="";
+  @published bool isolated=false; //isolated pnacl runtime
+  @published String chdir="/%id%"; //path of the current dir execution from "mountpoint/InputZone" point 
   @observable bool initialized = false;
   @observable var runtime = RUNTIMETYPE.EMSCR;
   @observable String t_e_l;
@@ -155,10 +158,20 @@ class IzApp extends PolymerElement {
                    tasks[msg.id].handleTaskMessage(msg);
                  }
                });
-               pnaclProxy = new JsObject.fromBrowserObject(embed); 
+               
              });
-         this.shadowRoot.children.add(embed);
-          }
+          this.shadowRoot.children.add(embed);
+          pnaclProxy = new JsObject.fromBrowserObject(embed); 
+          embed.on['progress'].listen((event){
+             var e = (event as ProgressEvent);
+             if(e.lengthComputable)
+               loadProgress = (e.loaded*100/e.total).floor();
+           });
+           embed.onError.first.then((e){
+             ($['loadingMsg'] as HeadElement).innerHtml = "ERROR:"+pnaclProxy['lastError'];
+           });
+        }
+       
      }
     
    }

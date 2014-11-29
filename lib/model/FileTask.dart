@@ -50,6 +50,7 @@ abstract class FileTask extends Observable{
   void _postMessage(String message);
   void cancel();
   void deleteFsContent();
+  void endProcess();
   
   void handleTaskMessage(TaskMessage message){
       switch(message.messagetype){
@@ -128,10 +129,11 @@ abstract class FileTask extends Observable{
         progress=100;//Sometime it stuck to 99%
         status= '';
         iz_app.showCompleteToast(this.id);
+        endProcess();
         break;
       case STATUSTYPE.ERRRORED:
         status= 'ERROR';
-        this.deleteFsContent();
+        //this.deleteFsContent();
         break;
       case STATUSTYPE.CANCELING:
         status= 'Canceling';
@@ -223,7 +225,7 @@ class EmscrTask extends FileTask{
   }
   
   void cancel(){
-    _worker.terminate();
+    endProcess();
     updateStatus(STATUSTYPE.CANCELED.toString());
     
   }
@@ -235,7 +237,6 @@ class EmscrTask extends FileTask{
     contentDeleted = true;
     switch(fs_location){
       case FILESYSTEMTYPE.MEMFS:
-        _worker.terminate(); 
         break;
       case FILESYSTEMTYPE.HTML5TEMP:
         Html5FS.temp().then((fs)=>fs.root.getDirectory('InputZone/'+this.id.toString()).then((e)=>e.removeRecursively()));
@@ -248,22 +249,56 @@ class EmscrTask extends FileTask{
         iz_app.getPersUsedSpace();
         break;
     }
+    endProcess();
     
   } 
+  
+  void endProcess(){
+    _worker.terminate();
+  }
   
 }
 
 
 class PNaclTask extends FileTask{
   JsObject _pnaclProxy;
+  EmbedElement _embed = null;
   
-  PNaclTask(filename,url,size, this._pnaclProxy):super(filename,url,size);
+  PNaclTask(filename,url,size, pnaclProxy):super(filename,url,size){
+    if(iz_app.isolated)
+    {
+      _embed= new EmbedElement()..type="application/x-pnacl"..src=iz_app.pnaclbin..width='0'..height='0'..id='pnacl'..onLoad.listen((_){
+          _embed.on['message'].listen((s){
+            var msg = new TaskMessage.FromNACLMessage((s as MessageEvent).data.toString());
+            if(msg.id!=0){
+              handleTaskMessage(msg);
+            }
+          });
+          
+        });
+     iz_app.shadowRoot.children.add(_embed);
+     _pnaclProxy = new JsObject.fromBrowserObject(_embed); 
+     _embed.onError.first.then((e){
+       updateStatus(STATUSTYPE.ERRRORED.toString());
+       details = _pnaclProxy['lastError'];
+      });
+     _embed.on['crash'].first.then((_){
+       if(status_id != int.parse(STATUSTYPE.ERRRORED.toString())){
+         updateStatus(STATUSTYPE.ERRRORED.toString());
+         details = 'Process has crashed';
+       }
+              
+     });
+    }
+    else
+      _pnaclProxy = pnaclProxy;
+  }
   
   void start(FILESYSTEMTYPE fileSystemType){
     fs_location = fileSystemType;
     updateTaskSize(estimatedSize);
       _postMessage('type\n'+MESSAGETYPE.START.toString()+'\nid\n'+id.toString()+'\nurl\n'+input_file_url+'\nfilename\n'
-          +filename+'\nsize\n'+inputSize.toString()+'\nFS\n'+fileSystemType.toString()+'\nparams\n'+parseArgv(params));
+          +filename+'\nsize\n'+inputSize.toString()+'\nFS\n'+fileSystemType.toString()+'\nchdir\n'+iz_app.chdir.replaceFirst('%id%',id.toString())+'\nparams\n'+parseArgv(params));
     }
   
   void _postMessage(String message){
@@ -288,7 +323,19 @@ class PNaclTask extends FileTask{
           Html5FS.pers().then((fs)=>fs.root.getDirectory('InputZone/'+this.id.toString()).then((e)=>e.removeRecursively()));
           break;
       }
+      endProcess();
     }
+  
+  endProcess(){
+    if(iz_app.isolated && _embed!=null)
+      try{
+        iz_app.shadowRoot.children.remove(_embed);/// TODO: Fix "is not a valid instance ID."...
+        _embed=null;
+      }
+    catch(e){
+      
+    }
+  }
   
 }
 
@@ -324,6 +371,9 @@ class TaskMessage{
     }catch(e){
       body= emscrMessage;
     }
+  }
+  
+  toString(){
   }
   
 }

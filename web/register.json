@@ -3,5 +3,7 @@
    "desc":"Get back your disc image from a compressed ecm file (mostly used with playstation game files)."},
   {"cname":"ecmify","url":"/ecmify.html","pnacl":true,"emscr":false,"intag":["iso","bin"],"outag":["ecm"],"desc":"Make your disc image more compressible."},
   {"cname":"cwebp","url":"/cwebp.html","pnacl":true,"emscr":false,"intag":["jpeg","png","tiff","webp"],"outag":["webp"],"desc":"Convert image file to webp."},
-  {"cname":"dwebp","url":"/dwebp.html","pnacl":true,"emscr":false,"intag":["webp"],"outag":["png","tiff","bmp","pam","ppm","pgm","yuv"],"desc":"Decode webp image to regular file format."}
+  {"cname":"dwebp","url":"/dwebp.html","pnacl":true,"emscr":false,"intag":["webp"],"outag":["png","tiff","bmp","pam","ppm","pgm","yuv"],"desc":"Decode webp image to regular file format."},
+  {"cname":"ffmpeg","url":"/ffmpeg.html","pnacl":true,"emscr":false,"intag":[],"outag":["h264","vp8","vp9","mkv","mp4","webm","avi","xvid","mpg","mp3","wav","oga","ogv","mpeg2","flv"],
+    "desc":"Convert audio/video files in many different format."}
 ]

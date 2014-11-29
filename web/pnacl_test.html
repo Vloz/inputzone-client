@@ -37,7 +37,7 @@
     </script>
 <embed id="mynacl"
        width=600 height=100
-       src="converters/copy/bin/copy.pexe.nmf"
+       src="converters/ffmpeg/bin/ffmpeg.pexe.nmf"
        type="application/x-pnacl" />
     </div>
 <input type="button" value="Cancel" onclick="cancel()">
@@ -53,13 +53,13 @@
         naclObj = document.getElementById('mynacl');
 
         id = new Date().getTime();
-        console.log('type\n1\nid\n'+id.toString()+'\nurl\n'+url+'\nfilename\n'+f.name+'\nsize\n'+f.size.toString());
-        naclObj.postMessage('type\n1\nid\n'+id.toString()+'\nurl\n'+url+'\nfilename\n'+f.name+'\nsize\n'+f.size.toString() +'\nFS'
-                +'\n1\nparams\n./copy\n/temporary/InputZone/1416394292430/input/chri-war-porn-02.jpg\n/temporary/InputZone/1416394292430/output/chri-war-porn-022.jpg'
+        //console.log('type\n1\nid\n'+'1416394292430'+'\nurl\n'+url+'\nfilename\n'+f.name+'\nsize\n'+f.size.toString());
+        naclObj.postMessage('type\n1\nid\n'+'1416394292430'+'\nurl\n'+url+'\nfilename\n'+f.name+'\nsize\n'+f.size.toString() +'\nFS'
+                +'\n1\nparams\n./ffmpeg\n-i\n/temporary/InputZone/1416394292430/input/sample.mp4\n/temporary/InputZone/1416394292430/output/sample.webm'
         );
     });
     function cancel(){
-        naclObj.postMessage('type\n2\nid\n'+id.toString());
+        naclObj.postMessage('type\n2\nid\n'+'1416394292430');
     }
 </script>
 </body>

@@ -1,4 +1,5 @@
 #include <search.h>
+#include <sys/unistd.h>
 #include "FileConverter.h"
 
 FileConverter::FileConverter( IzInstanceBase *instance,const pp::Var& var_message)
@@ -63,12 +64,13 @@ void FileConverter::InputDownloadDone() {
             mount("","/persistent","html5fs",0,"type=PERSISTENT,expected_size=53687091200");
     }
 
-    std::string fullInputPath = mountPoint_+ GetInputDirectoryPath()+filename_;
+    //std::string fullInputPath = mountPoint_+ GetInputDirectoryPath()+filename_;
     clock_t begin, end; //to measure conversion time
     begin = clock();
     //int32_t conversionResult = Convert(id_,fullInputPath.c_str(),size_, mountPoint_+ GetOutputDirectoryPath(),instance_->GetBaseName(filename_),instance_->GetExtension(filename_));
     char* argv[256];
     int argc = instance_->getMessageParams(startMessage_, argv);
+    int foo = chdir((mountPoint_+"/InputZone"+instance_->getMessageValue("chdir", startMessage_)).c_str());
     int conversionResult = main(argc,argv);
     if(status_==CANCELED)
         return;
@@ -76,7 +78,6 @@ void FileConverter::InputDownloadDone() {
     if( conversionResult == PP_OK) {
         end = clock();
         instance_->DebugMessage("Conversion done in " + std::to_string((double) (end - begin) / CLOCKS_PER_SEC)+" seconds");
-        UpdateTaskStatus(COMPLETED);
         DeleteInputDirectory();
 
         pp::FileRef refdir(*fileSystem_, GetOutputDirectoryPath().c_str());
@@ -99,6 +100,7 @@ void FileConverter::SendOutputURL(int32_t result, const std::vector<pp::Director
         return;
     }
     instance_->SendOutputURL(id_,entries.front().file_ref().GetName().AsString() ,GetOutputDirectoryPath()+entries.front().file_ref().GetName().AsString());
+    UpdateTaskStatus(COMPLETED);
 }
 
 
