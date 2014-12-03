@@ -1,9 +1,12 @@
 [
   {"cname":"unecm","url":"/unecm.html","pnacl":true,"emscr":true,"intag":["ecm"],"outag":["iso","bin"],
-   "desc":"Get back your disc image from a compressed ecm file (mostly used with playstation game files)."},
-  {"cname":"ecmify","url":"/ecmify.html","pnacl":true,"emscr":false,"intag":["iso","bin"],"outag":["ecm"],"desc":"Make your disc image more compressible."},
-  {"cname":"cwebp","url":"/cwebp.html","pnacl":true,"emscr":false,"intag":["jpeg","png","tiff","webp"],"outag":["webp"],"desc":"Convert image file to webp."},
-  {"cname":"dwebp","url":"/dwebp.html","pnacl":true,"emscr":false,"intag":["webp"],"outag":["png","tiff","bmp","pam","ppm","pgm","yuv"],"desc":"Decode webp image to regular file format."},
+   "desc":"Get back a valid image disc from a compressed ecm file by restoring its EDC/ECC code."},
+  {"cname":"ecmify","url":"/ecmify.html","pnacl":true,"emscr":false,"intag":["iso","bin"],"outag":["ecm"],
+    "desc":"Optimize disc error code to make its image more compressible."},
+  {"cname":"cwebp","url":"/cwebp.html","pnacl":true,"emscr":false,"intag":["jpeg","png","tiff","webp"],"outag":["webp"],
+    "desc":"Lossless compression tools for common images formats."},
+  {"cname":"dwebp","url":"/dwebp.html","pnacl":true,"emscr":false,"intag":["webp"],"outag":["png","tiff","bmp","pam","ppm","pgm","yuv"],
+    "desc":"Decode webp files to common image formats."},
   {"cname":"ffmpeg","url":"/ffmpeg.html","pnacl":true,"emscr":false,"intag":[],"outag":["h264","vp8","vp9","mkv","mp4","webm","avi","xvid","mpg","mp3","wav","oga","ogv","mpeg2","flv"],
-    "desc":"Convert audio/video files in many different format."}
+    "desc":"Convert audio and video files into many different formats. Allow basic video editing."}
 ]

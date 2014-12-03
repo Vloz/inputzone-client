@@ -38,6 +38,10 @@ abstract class FileTask extends Observable{
   
   bool contentDeleted = false;
   
+  int _stderr_index = 0;
+  FileReader _stderr_fr = new FileReader();
+  File _stderr_file = null;
+  
   
   FILESYSTEMTYPE fs_location;
   
@@ -117,6 +121,7 @@ abstract class FileTask extends Observable{
         this.deleteFsContent();
         break;
       case STATUSTYPE.STARTING:
+        params+='\n';
         status= 'Starting';
         break;
       case STATUSTYPE.CONVERTING:
@@ -195,6 +200,40 @@ abstract class FileTask extends Observable{
     
     return r;
   }
+  
+  Timer _consoleSync;
+  void initConsoleSync(){
+      _consoleSync = new Timer.periodic(const Duration(seconds:5), (_){
+        if(status_id!=int.parse(STATUSTYPE.STARTING.toString()) && status_id!=int.parse(STATUSTYPE.CONVERTING.toString()))
+          _consoleSync.cancel();
+        if(_stderr_file!=null)
+          _stderr_fr.readAsText(_stderr_file.slice(_stderr_index));
+        else
+          seekConsoleFiles();
+      });
+    }
+  
+  void seekConsoleFiles(){
+      switch(fs_location){
+        case FILESYSTEMTYPE.HTML5TEMP:
+          Html5FS.temp().then((fs){
+            fs.root.getDirectory('/InputZone/'+id.toString()).then((dir)=>dir.createFile('stderr.txt').then((e){initStdErr(e);}));});
+          break;
+      }
+  }
+  
+  void initStdErr(FileEntry e){
+    e.file().then((file) {
+      _stderr_fr.onLoadEnd.listen((result){
+         String r = result.target.result;
+         params+= r;
+         _stderr_index+= r.length;
+        });
+      _stderr_file = file;
+      });
+
+  }
+  
 }
 
 
@@ -297,6 +336,7 @@ class PNaclTask extends FileTask{
   void start(FILESYSTEMTYPE fileSystemType){
     fs_location = fileSystemType;
     updateTaskSize(estimatedSize);
+    initConsoleSync();
       _postMessage('type\n'+MESSAGETYPE.START.toString()+'\nid\n'+id.toString()+'\nurl\n'+input_file_url+'\nfilename\n'
           +filename+'\nsize\n'+inputSize.toString()+'\nFS\n'+fileSystemType.toString()+'\nchdir\n'+iz_app.chdir.replaceFirst('%id%',id.toString())+'\nparams\n'+parseArgv(params));
     }

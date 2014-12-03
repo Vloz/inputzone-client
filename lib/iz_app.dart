@@ -30,6 +30,7 @@ class IzApp extends PolymerElement {
   @published String emscrbin="";
   @published bool isolated=false; //isolated pnacl runtime
   @published String chdir="/%id%"; //path of the current dir execution from "mountpoint/InputZone" point 
+  @published int naclsize=0; //custom size for the nacl bin (used for progress)
   @observable bool initialized = false;
   @observable var runtime = RUNTIMETYPE.EMSCR;
   @observable String t_e_l;
@@ -61,7 +62,7 @@ class IzApp extends PolymerElement {
       'data-ad-slot':'5683998192', 'data-ad-format':'auto'}) );
     iz_app = this;
     detectBrowser();
-    if(currentBrowser== BROWSER.INTERNETEXPLORER || currentBrowser== BROWSER.OPERA)
+    if(currentBrowser== BROWSER.INTERNETEXPLORER)
     {
       emscrbin='';
       compliantBrowser=false;
@@ -117,6 +118,13 @@ class IzApp extends PolymerElement {
         ..type = 'text/javascript'
         ..async = true
         ..src = 'http://' + 'inputzone' + '.disqus.com/embed.js');
+    
+    this.children.add(new DivElement()..classes.add('g-plusone')
+    ..dataset.addAll({'size':'small','href':window.location.href}));
+    document.body.append((document.createElement('script') as ScriptElement)
+            ..type = 'text/javascript'
+            ..async = true
+            ..src = 'https://apis.google.com/js/platform.js');
       
         
       _outOfQuotaDialog = $['outOfQuotaDialog'];
@@ -166,6 +174,8 @@ class IzApp extends PolymerElement {
              var e = (event as ProgressEvent);
              if(e.lengthComputable)
                loadProgress = (e.loaded*100/e.total).floor();
+             else if(naclsize>0)
+               loadProgress=(e.loaded*100/naclsize).floor();
            });
            embed.onError.first.then((e){
              ($['loadingMsg'] as HeadElement).innerHtml = "ERROR:"+pnaclProxy['lastError'];

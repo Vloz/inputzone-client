@@ -1,0 +1,20 @@
+{
+  "name": "ffmpeg Beta - Input Zone",
+  "description": "Convert your audio/video files locally in various format.",
+  "manifest_version": 2,
+  "version": "1",
+  "app": {
+    "urls": [
+      "http://input.zone/ffmpeg.html"
+    ],
+    "launch": {
+      "web_url": "http://input.zone/ffmpeg.html"
+    }
+  },
+  "icons": {
+    "128": "icon_128.png"
+  },
+  "permissions": [
+    "unlimitedStorage"
+  ]
+}

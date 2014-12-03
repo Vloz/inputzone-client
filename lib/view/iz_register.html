@@ -2,27 +2,23 @@
 <link rel="import" href="../../../packages/paper_elements/paper_ripple.html">
 <polymer-element name="iz-register">
     <template layout vertical>
-        <style>
-            .tagdiv{
-                margin: 0 4px;
-            }
-        </style>
         <template if="{{minify==false}}">
             <style>
                 .entry{
                     margin: 20px 10px;
                     padding: 20px;
-                    min-height: 40px;
                     background-color: #2c2f2f;
                     border-radius: 3px;
                     position: relative;
-                    max-width: 400px;
+                    width: 300px;
+                    cursor: pointer;
+                    overflow: hidden;
                 }
 
                 .chromeonly{
                     background-image: url('/res/chrome.svg');
-                    background-position: 108% 13%;
-                    background-size: 19%;
+                    background-position: -12% 8%;
+                    background-size: 132%;
                     background-repeat: no-repeat;
                 }
 
@@ -57,28 +53,79 @@
                     text-align: justify;
                     color: #777;
                     font-style: italic;
+                    font-size: 13px;
+                    margin: 8px 3px;
+                }
+
+                .tagdiv{
+                    overflow: hidden;
+                    max-height: 84px;
+                    font-size: 13px;
+                    margin: 15px 0;
+                }
+
+
+                .entry:hover>.name{
+                    text-decoration: underline;
                 }
 
             </style>
-            <template repeat="{{entry in entries}}">
-
-                <div class="entry {{entry.emscr?'':'chromeonly'}}">
-                    <a _href="{{'http://input.zone'+entry.url}}">{{'http://input.zone'+entry.url}}</a>
-                    <div id="{{entry.cname}}" layout horizontal center wrap>
-                        <div class="tagdiv" horizontal layout>
-                            <template repeat="{{tag in entry.intag}}"><div class="tag intag"> {{tag}}</div> </template>
-                            <template repeat="{{tag in entry.outag}}"><div class="tag outag"> {{tag}} </div></template>
-                        </div>
-                    </div>
-                    <div class="desc">
-                        {{entry.desc}}
-                    </div>
-                    <div hidden?="{{entry.emscr!=''}}">Only run on chrome for desktop</div>
-                </div>
+            <template if="{{!browserSupportPnacl}}">
+                <style>
+                    .chromeonly{
+                        background-image: none;
+                        background-color: rgba(44, 47, 47, 0.3);
+                        pointer-events: none;
+                        cursor: not-allowed;
+                    }
+                    .chromeonly>*{
+                        opacity: 0.3;
+                    }
+                    .chromeonly::after{
+                        color: white;
+                        background-color: #ff7043;
+                        text-align: center;
+                        content: "DESKTOP CHROME ONLY";
+                        font-family: Oswald;
+                        position: absolute;
+                        top: 35%;
+                        left: -20px;
+                        right: -20px;
+                        padding: 7px;
+                        font-size: 24px;
+                        transform: rotate(-20deg);
+                    }
+                </style>
             </template>
+            <div style="padding:0 15px; margin-top: -34px;" layout horizontal around-justified wrap>
+                <template repeat="{{entry in entries}}">
+
+                    <div id="{{entry.cname}}" vertical layout class="entry name {{entry.emscr?'':'chromeonly'}}" on-click="{{onEntryClick}}">
+                        <a style="font-family: Oswald; font-size: 28px; text-align: left" _href="{{'http://input.zone'+entry.url}}">{{entry.cname}}</a>
+                        <div class="desc">
+                            {{entry.desc}}
+                        </div>
+                        <div flex></div>
+                        <div id="{{entry.cname}}" layout horizontal center wrap>
+                            <div class="tagdiv" horizontal layout justified wrap>
+                                <template repeat="{{tag in entry.intag}}"><div class="tag intag"> {{tag}}</div> </template>
+                                <template repeat="{{tag in entry.outag}}"><div class="tag outag"> {{tag}} </div></template>
+                                <div flex></div>
+                            </div>
+                        </div>
+                        <div hidden?="{{entry.emscr!=''}}">Only run on chrome for desktop</div>
+
+                        <paper-ripple fit></paper-ripple>
+                    </div>
+                </template>
+                <div flex></div>
+            </div>
         </template>
         <template if="{{minify==true}}">
             <style>
+                .tagdiv{
+                    margin: 0 4px;
+                }
                 .tag {
                     font-size: 10px;
                     padding: 2px 4px;
@@ -95,6 +142,7 @@
                     background-color: #2c2f2f;
                     border-radius: 3px;
                     position: relative;
+                    overflow: hidden;
                 }
                 .chromeonly {
                     background-image: url('/res/chrome.svg');
@@ -123,6 +171,33 @@
                     margin: 0 4px;
                 }
             </style>
+            <template if="{{!browserSupportPnacl}}">
+                <style>
+                    .chromeonly{
+                        background-image: none;
+                        background-color: rgba(44, 47, 47, 0.3);
+                        pointer-events: none;
+                        cursor: not-allowed;
+                    }
+                    .chromeonly>*{
+                        opacity: 0.3;
+                    }
+                    .chromeonly::after{
+                        color: white;
+                        background-color: #ff7043;
+                        text-align: center;
+                        content: "DESKTOP CHROME ONLY";
+                        font-family: Oswald;
+                        position: absolute;
+                        top: 35%;
+                        left: -11px;
+                        right: -11px;
+                        padding: 1px;
+                        font-size: 17px;
+                        transform: rotate(-14deg);
+                    }
+                </style>
+            </template>
             <template repeat="{{entry in entries}}">
                 <div id="{{entry.cname}}" class="entry {{entry.emscr?'':'chromeonly'}}" on-click="{{onEntryClick}}" vertical layout>
                     <div class="name">{{entry.cname}}</div>

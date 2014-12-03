@@ -6,6 +6,7 @@ import 'package:inputzone/inputzone.dart';
 @CustomTag('iz-register')
 class IzRegister extends PolymerElement {
   @published bool minify = false;
+  @observable bool browserSupportPnacl=window.navigator.mimeTypes.any((mimetype)=> mimetype.type == 'application/x-pnacl');
   
   List<RegisterEntry> allEntries = new List<RegisterEntry>();
   @observable ObservableList<RegisterEntry> entries = new ObservableList<RegisterEntry>();

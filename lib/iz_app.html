@@ -134,6 +134,19 @@
             :host core-icon {
                 color: #bdced7;
             }
+
+            #gplusbut{
+                position: absolute;
+                bottom: 1%;
+                left: 1%;
+            }
+
+            #credits{
+                position: absolute;
+                bottom: 2%;
+                right: 2%;
+                opacity: 0.3;
+            }
         </style>
         <paper-fab on-click="{{clickFab}}" hidden?="{{!initialized}}" z="5" icon="add"></paper-fab>
         <core-drawer-panel id="drawer" responsiveWidth="975px" narrow="{{narrowedDrawer}}" >
@@ -205,8 +218,8 @@
                         </div>
 
 
-
-                        <small style="position: absolute; bottom: 2%; right: 2%; opacity: 0.3"><content select="short"></content> <a href="https://github.com/Vloz/input.zone">InputZone is licensed under Gnu LGPLv3</a></small>
+                        <small id="gplusbut"><content select="#___plusone_0"></content></small>
+                        <small id="credits"><content select="short"></content> <a href="https://github.com/Vloz/input.zone">InputZone is licensed under Gnu LGPLv3</a></small>
                     </section>
                     <section>
                         <content select="ins"></content>
