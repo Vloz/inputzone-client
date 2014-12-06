@@ -1,7 +1,6 @@
 <link rel="import" href="../../../packages/polymer/polymer.html">
-<link rel="import" href="../../../packages/paper_elements/paper_dropdown_menu.html">
-<link rel="import" href="../../../packages/paper_elements/paper_item.html">
-<polymer-element name="iz-params">
+<link rel="import" href="iz_params_base.html">
+<polymer-element name="iz-params" extends="iz-params-base">
     <template>
         <style>
             :host{
@@ -38,25 +37,9 @@
                 min-height: 60px;
             }
 
-            #presetmenu{
-                color: #333;
-                margin: 0 15px;
-                width: 94%;
-                background-color: transparent;
-            }
-
-            #presetmenu::shadow #control[selected]{
-                color: white;
-            }
 
         </style>
-        <div>
-            <paper-dropdown-menu disabled?="{{context.status_id!=9}}" on-core-select="{{onChangePreset}}" id="presetmenu">
-                <template repeat="{{preset in presets}}">
-                    <paper-item label="{{preset.name}}"></paper-item>
-                </template>
-            </paper-dropdown-menu>
-        </div>
+        <shadow></shadow>
         <div id="content">
             <content>
             </content>

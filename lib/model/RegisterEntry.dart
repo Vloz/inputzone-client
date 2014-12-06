@@ -6,16 +6,16 @@ class RegisterEntry extends Observable{
   @observable bool pnacl;
   @observable bool emscr;
   @observable String desc;
-  @observable ObservableList<String> intag;
-  @observable ObservableList<String> outag;
+  @observable ObservableList<String> intag = new ObservableList<String>();
+  @observable ObservableList<String> outag = new ObservableList<String>();
   
   RegisterEntry.fromJSON(Map json){
     cname = json['cname'].toUpperCase();
     url = json['url'];
     pnacl = json['pnacl'];
     emscr = json['emscr'];
-    intag = json['intag'];
-    outag = json['outag'];
+    intag.addAll(json['intag']);
+    outag.addAll(json['outag']);
     desc = json['desc'];
   }
 

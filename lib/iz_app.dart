@@ -36,7 +36,7 @@ class IzApp extends PolymerElement {
   @observable String t_e_l;
   @observable bool compliantBrowser = true;
   
-  DivElement iz_params_content = null;
+  Element iz_params_content = null;
   
   EmbedElement embed;
   JsObject pnaclProxy;

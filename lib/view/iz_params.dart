@@ -1,67 +1,41 @@
 import 'package:polymer/polymer.dart';
 import 'dart:html';
 import 'dart:async';
-import 'dart:convert';
 
 import '../inputzone.dart';
+import 'iz_params_base.dart';
 
 import 'package:paper_elements/paper_input.dart';
 import 'package:paper_elements/paper_slider.dart';
 import 'package:paper_elements/paper_radio_button.dart';
 import 'package:paper_elements/paper_radio_group.dart';
-import 'package:paper_elements/paper_dropdown_menu.dart';
 import 'package:paper_elements/paper_toggle_button.dart';
 
 @CustomTag('iz-params')
-class IzParams extends PolymerElement {
-  
-  @observable FileTask context=null;
+class IzParams extends IzParamsBase with Polymer, Observable {
   
   List<Option> _options = new List<Option>();
-  ObservableList<Preset> presets = new ObservableList<Preset>();
-  
-  PaperDropdownMenu presetMenu;
-  String ouput_ext='';
 
   
   IzParams.created() : super.created(){
   }
   
-  bool _ready=false;
   void ready(){
-    if(_ready)
-      return;
-    _ready=true;
-    presetMenu=$['presetmenu'];
-    
-    if(iz_app.iz_params_content.dataset.containsKey('presets')){
-      HttpRequest.getString(iz_app.iz_params_content.dataset['presets']).then((s){
-        (JSON.decode(s) as List<Map>).forEach((m)=>presets.add(new Preset.fromMap(m)));
-        presets.add(new Preset('Custom settings', ''));
-        presetMenu.selected=0;
-        setupOptions();
-        onChangePreset();
-        });
-    }
-    else
-      new Future.delayed(new Duration(milliseconds:300)).then((_){
-       setupOptions();
-      });
-    
-   
+    super.ready();
+    downloadPresets();
+    new Future.delayed(new Duration(milliseconds:600)).then((_){
+           setupOptions();
+          });
   }
-  int currentPreset =255;
-  void onChangePreset(){
-    int index = presetMenu.selected;
-    if(index==currentPreset)
-      return;
-    currentPreset=index;
+  
+  
+  void presetSelected(int index, Preset preset){
     if(index != presets.length-1)
     {
       _options.clear();
-      if(presets[index].output_ext!=null)
-        ouput_ext=presets[index].output_ext;
-      context.params= "./"+iz_app.name+" "+tParam(context.baseParams,presets[index].value);
+      if(preset.output_ext!=null)
+        ouput_ext=preset.output_ext;
+      context.params= "./"+iz_app.name+" "+tParam(context.baseParams,preset.value);
       updateFromText();
     }
   }
@@ -157,28 +131,28 @@ class IzParams extends PolymerElement {
         case 'paper-slider':
           (node as PaperSlider).onChange.listen((o){
             updateElementOption(o.target,(o.target as PaperSlider).value.toString());
-            setOnCustomPreset();
+            selectCustomPreset();
             updateParams();
         });
           break;
         case 'paper-input':
           (node as PaperInput).onInput.listen((o){
           updateElementOption(o.target,(o.target as PaperInput).inputValue.trim());
-          setOnCustomPreset();
+          selectCustomPreset();
           updateParams();
         });
           break;
         case 'paper-radio-button':
           (node as PaperRadioButton).on['core-change'].listen((o){
           updateElementOption(o.target,((o as CustomEvent).target as PaperRadioButton).checked?" ":"");
-          setOnCustomPreset();
+          selectCustomPreset();
           updateParams();
         });
           break;
         case 'paper-toggle-button':
           (node as PaperToggleButton).on['core-change'].listen((o){
             updateElementOption(o.target,((o as CustomEvent).target as PaperToggleButton).checked?" ":"");
-            setOnCustomPreset();
+            selectCustomPreset();
             updateParams();
           });
           break;
@@ -201,34 +175,7 @@ class IzParams extends PolymerElement {
         _options.add(new Option(value,position: pos));
     }
   }
-//            
-//            (shadowRoot.querySelector('content') as ContentElement).getDistributedNodes().first.parent.querySelectorAll('paper-radio-button').forEach((node){
-//                      var newOption = createOption(node);
-//                      (node as PaperRadioButton).on['core-change'].listen((o){
-//                        newOption.value = ((o as CustomEvent).target as PaperRadioButton).checked?" ":""; 
-//                        updateParams();
-//                      });
-//                                  
-//                });
   
-  
-  void setOnCustomPreset(){
-    presetMenu.selected = presets.length-1;
-  }
-  
-//  Option createOption(HtmlElement node){
-//    int pos = 256;
-//    String flag ='';
-//    if(node.dataset.containsKey('optionFlag'))
-//      flag=node.dataset['optionFlag'];
-//    if(node.dataset.containsKey('optionPos'))
-//      pos=int.parse(node.dataset['optionPos']);
-//    Option newOption = new Option(flag: flag,position: pos); 
-//    if(node.dataset.containsKey('isboolean'))
-//      newOption.isBoolean =true; 
-//    _options.add(newOption);
-//    return newOption;
-//  }
   
   void updateParams(){
     String s='';
@@ -237,17 +184,8 @@ class IzParams extends PolymerElement {
     context.params=tParam("./"+iz_app.name+" "+context.baseParams+" ", s);
   }
   
-  String tParam(String base, String otherparams){
-    String s = base;
-    s= s.replaceAll('%OUTPUT_EXT%', ouput_ext);
-    if(s.contains('%PARAMS%'))
-      s= s.replaceAll('%PARAMS%', otherparams);
-    else
-      s+= otherparams;
-    return s;
-  }
-  
 }
+
 
 class Option{
   String flag='';
@@ -263,17 +201,4 @@ class Option{
       return'';
     return (flag+' '+value).trim()+' ';
   }
-}
-
-class Preset{
-  String name;
-  String value;
-  String output_ext = null;
-  Preset.fromMap(Map m){
-    name = m['name'];
-    value= m['value'];
-    if(m.containsKey('output_ext'))
-      output_ext=m['output_ext'];
-  }
-  Preset(this.name,this.value);
 }

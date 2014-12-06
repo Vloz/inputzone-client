@@ -2,7 +2,7 @@ import 'package:polymer/polymer.dart';
 import 'package:inputzone/inputzone.dart';
 import 'dart:html';
 
-import 'package:inputzone/view/iz_params.dart';
+import 'package:inputzone/view/iz_params_base.dart';
 
 @CustomTag('iz-output')
 class IzOutput extends PolymerElement {
@@ -10,7 +10,7 @@ class IzOutput extends PolymerElement {
   @published FileTask context;
   @observable bool hasParams = false;
   bool paramsDrawerOpen = false;
-  IzParams params=null;
+  IzParamsBase params=null;
   
   IzOutput.created() : super.created(){  
   }
@@ -22,10 +22,15 @@ class IzOutput extends PolymerElement {
     _ready=true;
     if(iz_app.iz_params_content != null){
       hasParams = true;
-      params = new Element.tag('iz-params');
-      iz_app.iz_params_content.children.forEach((c){
-        params.children.add(c.clone(true));
-      });
+      if(iz_app.iz_params_content is DivElement){
+        params = new Element.tag('iz-params');
+              iz_app.iz_params_content.children.forEach((c){
+                params.children.add(c.clone(true));
+              });
+              
+      }else{
+        params = iz_app.iz_params_content.clone(true);
+      }
       params.context = context;
       ($['paramsdrawer'] as DivElement).children.add(params);
     }
