@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#323838">
+    <title>InputZone - Web {{ c.title }}</title>
+    <meta name="description" content="{{ c.fullDesc }}" />
+    <!--{% raw %}-->
+    <link rel="import" href="packages/polymer/polymer.html">
+    <script src="packages/browser/dart.js"></script>
+    <link rel="stylesheet" href="res/main.css" shim-shadowdom>
+    <link href="/res/icon.png" rel="shortcut icon"/>
+    <link rel="import" href="packages/inputzone/iz_app.html">
+</head>
+<body touch-action="auto" unresolved fullbleed>
+
+
+<!--{% endraw %}-->
+<iz-app
+        name="{{ c.key.id() }}"
+        pnaclbin="{{ c.pnaclBin }}"
+        inputExt="{{ c.inputExt }}"
+        chdir="{{ c.chdir }}"
+        naclsize="{{ c.naclSize }}"
+        isolated="{{ c.isolated }}"
+        fit
+        >
+    <h1>{{ c.title }}</h1>
+    <h2>{{ c.shortDesc }}</h2>
+    <short>{{ c.footer }}{% if c.footer %} - {% endif %}</short>
+    <div id="params" data-presets="/converters/ffmpeg/ffmpeg_presets.json">
+    </div>
+</iz-app>
+<script type="application/dart">export 'package:polymer/init.dart';</script>
+</body>
+</html>

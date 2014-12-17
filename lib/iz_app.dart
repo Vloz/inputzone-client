@@ -25,6 +25,8 @@ class IzApp extends PolymerElement {
   @observable int loadProgress = 0;
   
   @published String name="app";
+  @published bool showconsole=true;
+  @published bool autorun=false;
   @published String inputExt="*/*";
   @published String pnaclbin="";
   @published String emscrbin="";
@@ -36,7 +38,6 @@ class IzApp extends PolymerElement {
   @observable String t_e_l;
   @observable bool compliantBrowser = true;
   
-  Element iz_params_content = null;
   
   EmbedElement embed;
   JsObject pnaclProxy;
@@ -138,7 +139,6 @@ class IzApp extends PolymerElement {
               _outOfQuotaDialog.toggle();
         })
       );
-      iz_params_content = querySelector('#params');
 
       
   }
@@ -273,7 +273,7 @@ class IzApp extends PolymerElement {
                   (int received_size){
                      availablePersSpace = received_size;
                      fs_pers_status = FS_PERS_STATUS.OPENED;
-                     if(iz_params_content == null)
+                     if(autorun)
                        this.tasks.forEach((k,v){
                          if((v as FileTask).status_id.toString()==STATUSTYPE.WAITINGQUOTA.toString())
                            querySpaceAndRun(v);

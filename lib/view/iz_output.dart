@@ -2,15 +2,12 @@ import 'package:polymer/polymer.dart';
 import 'package:inputzone/inputzone.dart';
 import 'dart:html';
 
-import 'package:inputzone/view/iz_params_base.dart';
-
 @CustomTag('iz-output')
 class IzOutput extends PolymerElement {
     
   @published FileTask context;
   @observable bool hasParams = false;
-  bool paramsDrawerOpen = false;
-  IzParamsBase params=null;
+  bool consoleOpen = false;
   
   IzOutput.created() : super.created(){  
   }
@@ -20,20 +17,6 @@ class IzOutput extends PolymerElement {
     if(_ready)
       return;
     _ready=true;
-    if(iz_app.iz_params_content != null){
-      hasParams = true;
-      if(iz_app.iz_params_content is DivElement){
-        params = new Element.tag('iz-params');
-              iz_app.iz_params_content.children.forEach((c){
-                params.children.add(c.clone(true));
-              });
-              
-      }else{
-        params = iz_app.iz_params_content.clone(true);
-      }
-      params.context = context;
-      ($['paramsdrawer'] as DivElement).children.add(params);
-    }
   }
   
   void remove(){
@@ -59,9 +42,9 @@ class IzOutput extends PolymerElement {
   }
   
   void SettingsClicked(){
-    ($['paramsdrawer'] as DivElement).style..height=(paramsDrawerOpen?"0":"auto")
-        ..display= (paramsDrawerOpen?"none":"block");
-    paramsDrawerOpen = !paramsDrawerOpen;
+    ($['console'] as TextAreaElement).style..height=(consoleOpen?"0":"auto")
+        ..display= (consoleOpen?"none":"block");
+    consoleOpen = !consoleOpen;
   }
   
 }

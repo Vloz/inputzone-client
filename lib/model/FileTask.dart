@@ -92,7 +92,7 @@ abstract class FileTask extends Observable{
           this.estimatedOutputSize = int.parse(m['estitmateSize']);
           this.baseParams = m['baseParameters'];
           this.params = './'+iz_app.name+' '+this.baseParams;
-          if(iz_app.iz_params_content == null)
+          if(iz_app.autorun)
             iz_app.querySpaceAndRun(this);
           else
             updateStatus(STATUSTYPE.WAITINGUSERCLICK.toString());
